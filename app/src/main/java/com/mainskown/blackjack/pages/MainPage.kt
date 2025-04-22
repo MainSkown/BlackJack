@@ -12,6 +12,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.mainskown.blackjack.ui.theme.BlackJackTheme
+import com.mainskown.blackjack.components.CardButton
+import androidx.compose.foundation.layout.Box
+import androidx.compose.ui.Alignment
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -20,10 +23,19 @@ class MainActivity : ComponentActivity() {
         setContent {
             BlackJackTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                    // Buttons' box
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(innerPadding),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CardButton(
+                            text = "Start Game",
+                            onClick = { /* TODO: Start game logic */ },
+                            modifier = Modifier.padding(innerPadding)
+                        )
+                    }
                 }
             }
         }
