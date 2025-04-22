@@ -25,7 +25,7 @@ val Typography = Typography(
     titleLarge = TextStyle(
         fontFamily = Fascinate,
         fontWeight = FontWeight.Normal,
-        fontSize = 48.sp,
+        fontSize = 58.sp,
         lineHeight = 28.sp,
         letterSpacing = 0.sp
     ),
