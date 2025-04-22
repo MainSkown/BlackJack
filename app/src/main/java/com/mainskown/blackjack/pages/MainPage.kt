@@ -1,4 +1,4 @@
-package com.mainskown.blackjack
+package com.mainskown.blackjack.pages
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
