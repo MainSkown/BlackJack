@@ -12,9 +12,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.mainskown.blackjack.ui.theme.BlackJackTheme
-import com.mainskown.blackjack.components.CardButton
 import androidx.compose.foundation.layout.Box
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.unit.dp
+
+import com.mainskown.blackjack.components.CardButtonHand
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,10 +32,20 @@ class MainActivity : ComponentActivity() {
                             .padding(innerPadding),
                         contentAlignment = Alignment.Center
                     ) {
-                        CardButton(
-                            text = "Start Game",
-                            onClick = { /* TODO: Start game logic */ },
-                            modifier = Modifier.padding(innerPadding)
+                        CardButtonHand(
+                            cards = listOf("Start", "High Score", "Rules"),
+                            onCardClick = { index ->
+                                when (index) {
+                                    0 -> { /* TODO: Start game logic */
+                                    }
+
+                                    1 -> { /* TODO: High score logic */
+                                    }
+
+                                    2 -> { /* TODO: Rules logic */
+                                    }
+                                }
+                            },
                         )
                     }
                 }
