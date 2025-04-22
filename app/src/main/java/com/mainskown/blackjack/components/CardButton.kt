@@ -45,7 +45,7 @@ fun CardButton (
             defaultElevation = 4.dp
         )
     ) {
-        val width = size * 2f / 3f // Card should have 1.4:1 ratio
+        val width = size * 2f / 3f // Card should have 2:3 ratio
         Box(
             modifier = Modifier
                 .padding(16.dp)
