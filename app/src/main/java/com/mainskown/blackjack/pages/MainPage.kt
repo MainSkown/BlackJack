@@ -1,5 +1,6 @@
 package com.mainskown.blackjack.pages
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -52,7 +53,11 @@ class MainActivity : ComponentActivity() {
                                 when (index) {
                                     0 -> { /* TODO: Start game logic */ }
                                     1 -> { /* TODO: High score logic */ }
-                                    2 -> { /* TODO: Rules logic */ }
+                                    2 -> {
+                                        // Transition to RulesPage
+                                        val intent = Intent(this@MainActivity, RulesPage::class.java)
+                                        startActivity(intent)
+                                    }
                                 }
                             },
                         )
