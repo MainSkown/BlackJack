@@ -1,5 +1,6 @@
 package com.mainskown.blackjack.pages
 
+import android.content.SharedPreferences
 import android.media.Image
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -22,6 +23,9 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Slider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -31,16 +35,19 @@ import com.mainskown.blackjack.R
 import com.smarttoolfactory.slider.ColorfulIconSlider
 import com.smarttoolfactory.slider.MaterialSliderDefaults
 import com.smarttoolfactory.slider.SliderBrushColor
+import androidx.core.content.edit
 
 class SettingsPage : ComponentActivity() {
-    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        val preferences = SettingsPreferences(this.getPreferences(MODE_PRIVATE))
+
         setContent {
             BlackJackTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Column (
+                    Column(
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(innerPadding),
@@ -66,7 +73,7 @@ class SettingsPage : ComponentActivity() {
                             modifier = Modifier.fillMaxWidth(),
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center
-                        ){
+                        ) {
                             // Title
                             Text(
                                 text = getString(R.string.settings_sound_volume),
@@ -74,8 +81,8 @@ class SettingsPage : ComponentActivity() {
                             )
                             // Slider
                             ColorfulIconSlider(
-                                value = 0.5f,
-                                onValueChange = { /* Handle volume change */ },
+                                value = preferences.soundVolume,
+                                onValueChange = { volume -> preferences.updateSoundVolume(volume)},
                                 valueRange = 0f..1f,
                                 steps = 20,
                                 borderStroke = BorderStroke(1.dp, Color(0xFFFFFFFF)),
@@ -102,7 +109,7 @@ class SettingsPage : ComponentActivity() {
                             modifier = Modifier.fillMaxWidth(),
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center
-                        ){
+                        ) {
                             // Title
                             Text(
                                 text = getString(R.string.settings_music_volume),
@@ -110,8 +117,8 @@ class SettingsPage : ComponentActivity() {
                             )
                             // Slider
                             ColorfulIconSlider(
-                                value = 0.5f,
-                                onValueChange = { /* Handle volume change */ },
+                                value = preferences.musicVolume,
+                                onValueChange = { volume -> preferences.updateMusicVolume(volume)},
                                 valueRange = 0f..1f,
                                 steps = 20,
                                 borderStroke = BorderStroke(1.dp, Color(0xFFFFFFFF)),
@@ -140,8 +147,10 @@ class SettingsPage : ComponentActivity() {
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Checkbox(
-                                checked = false,
-                                onCheckedChange = { /* Handle checkbox change */ },
+                                checked = preferences.skipIntro,
+                                onCheckedChange = { skip ->
+                                    preferences.updateSkipIntro(skip)
+                                },
                                 colors = CheckboxDefaults.colors(
                                     checkedColor = Color(0xFFFF0000),
                                     uncheckedColor = Color(0xFFFFFFFF)
@@ -159,5 +168,31 @@ class SettingsPage : ComponentActivity() {
                 }
             }
         }
+    }
+}
+
+class SettingsPreferences(preferences: SharedPreferences) {
+    private val sharedPreferences = preferences
+
+    var soundVolume by mutableStateOf(sharedPreferences.getFloat("sound_volume", 0.5f))
+        private set
+    var musicVolume by mutableStateOf(sharedPreferences.getFloat("music_volume", 0.5f))
+        private set
+    var skipIntro by mutableStateOf(sharedPreferences.getBoolean("skip_intro", false))
+        private set
+
+    fun updateSoundVolume(value: Float) {
+        sharedPreferences.edit { putFloat("sound_volume", value) }
+        soundVolume = value
+    }
+
+    fun updateMusicVolume(value: Float) {
+        sharedPreferences.edit { putFloat("music_volume", value) }
+        musicVolume = value
+    }
+
+    fun updateSkipIntro(value: Boolean) {
+        sharedPreferences.edit { putBoolean("skip_intro", value) }
+        skipIntro = value
     }
 }
