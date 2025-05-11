@@ -17,10 +17,15 @@ import com.mainskown.blackjack.ui.theme.BlackJackTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import com.mainskown.blackjack.R
 
 import com.mainskown.blackjack.components.CardButtonHand
 
@@ -31,36 +36,65 @@ class MainActivity : ComponentActivity() {
         setContent {
             BlackJackTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Column(
+                    Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(innerPadding),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
+                            .padding(innerPadding)
                     ) {
-                        // Main Title
-                        Text(
-                            text = "BlackJack",
-                            style = androidx.compose.material3.MaterialTheme.typography.titleLarge,
-                            color = Color(0xFFFFFFFF),
-                            modifier = Modifier.padding(bottom = 50.dp)
-                        )
+                        // Settings button
+                        IconButton(
+                            onClick = { /*TODO: Implement settings functionality*/},
+                            modifier = Modifier
+                                .padding(15.dp)
+                                .align(Alignment.TopEnd)
+                                .size(48.dp)
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_settings),
+                                contentDescription = "Settings",
+                                tint = Color(0xFFFFFFFF),
+                                modifier = Modifier
+                                    .padding(8.dp)
+                                    .fillMaxSize()
+                            )
+                        }
 
-                        // Cards
-                        CardButtonHand(
-                            cards = listOf("Start", "High Score", "Rules"),
-                            onCardClick = { index ->
-                                when (index) {
-                                    0 -> { /* TODO: Start game logic */ }
-                                    1 -> { /* TODO: High score logic */ }
-                                    2 -> {
-                                        // Transition to RulesPage
-                                        val intent = Intent(this@MainActivity, RulesPage::class.java)
-                                        startActivity(intent)
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(innerPadding),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            // Main Title
+                            Text(
+                                text = "BlackJack",
+                                style = androidx.compose.material3.MaterialTheme.typography.titleLarge,
+                                color = Color(0xFFFFFFFF),
+                                modifier = Modifier.padding(bottom = 50.dp)
+                            )
+
+                            // Cards
+                            CardButtonHand(
+                                cards = listOf("Start", "High Score", "Rules"),
+                                onCardClick = { index ->
+                                    when (index) {
+                                        0 -> { /* TODO: Start game logic */
+                                        }
+
+                                        1 -> { /* TODO: High score logic */
+                                        }
+
+                                        2 -> {
+                                            // Transition to RulesPage
+                                            val intent =
+                                                Intent(this@MainActivity, RulesPage::class.java)
+                                            startActivity(intent)
+                                        }
                                     }
-                                }
-                            },
-                        )
+                                },
+                            )
+                        }
                     }
                 }
             }
