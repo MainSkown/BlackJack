@@ -2,6 +2,13 @@
     <!-- Main screen -->
     <string name="app_name">BlackJack</string>
 
+    <!-- Settings screen -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_master_volume">Master Volume</string>
+    <string name="settings_music_volume">Music Volume</string>
+    <string name="settings_sound_volume">Sound Volume</string>
+    <string name="settings_skip_intro">Skip Intro</string>
+    <string name="settings_language">Language</string>
     <!-- Rules screen -->
     <string name="rules_title">Rules</string>
     <string-array name="rules_rules">
@@ -18,4 +25,5 @@
         <item>The game doesn\'t allow for splits or doubles - the betting only takes place at the beginning of the round, and the player is not allowed to split their hand.</item>
         <item>A bet must be worth at least 10 chips.</item>
     </string-array>
+    <string name="title_activity_settings_page">SettingsPage</string>
 </resources>

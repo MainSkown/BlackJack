@@ -12,6 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.BlackJack"
         tools:targetApi="31">
+
         <activity
             android:name=".pages.MainActivity"
             android:exported="true"
@@ -24,6 +25,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".pages.RulesPage" />
+        <activity android:name=".pages.SettingsPage" />
     </application>
 
 </manifest>

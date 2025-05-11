@@ -10,20 +10,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import com.mainskown.blackjack.ui.theme.BlackJackTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import com.mainskown.blackjack.R
 
@@ -43,7 +39,12 @@ class MainActivity : ComponentActivity() {
                     ) {
                         // Settings button
                         IconButton(
-                            onClick = { /*TODO: Implement settings functionality*/},
+                            onClick = {
+                                // Transition to SettingsPage
+                                val intent =
+                                    Intent(this@MainActivity, SettingsPage::class.java)
+                                startActivity(intent)
+                            },
                             modifier = Modifier
                                 .padding(15.dp)
                                 .align(Alignment.TopEnd)
