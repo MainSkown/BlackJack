@@ -46,7 +46,7 @@ class Card(
     val context: Context,
     val value: Int,
     val suit: CardSuit,
-    val isFaceUp: Boolean = false,
+    var isFaceUp: Boolean = true,
     val style: CardStyle = CardStyle.CLASSIC,
 ) {
     val frontImage: Bitmap

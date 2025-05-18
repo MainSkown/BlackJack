@@ -4,20 +4,18 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.mainskown.blackjack.ui.theme.BlackJackTheme
 import com.mainskown.blackjack.components.BiddingComponent
+import com.mainskown.blackjack.components.GameComponent
 
 class GamePage : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -26,8 +24,9 @@ class GamePage : ComponentActivity() {
         setContent {
             BlackJackTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    val chips = 100 // Starting chips
-                    var gameOn by remember { mutableStateOf(false) } // Game state
+                    var chips = 100 // Starting chips
+                    var betAmount = 25 // Initial bet amount
+                    var gameOn by remember { mutableStateOf(true) } // Game state
                     /* Bidding Faze */
                     if (!gameOn) {
                         BiddingComponent(
@@ -39,22 +38,25 @@ class GamePage : ComponentActivity() {
                             onBetSelected = { bet ->
                                 // Handle bet selection
                                 gameOn = true // Start the game
+                                // Update bet
+                                betAmount = bet
                             }
                         )
                     }
                     /* Game Faze */
                     else {
-                        Box(
+                        GameComponent(
                             modifier = Modifier
-
-                                .padding(innerPadding)
-                        ) {
-                            Text(
-                                text = "Game Faze",
-                                modifier = Modifier
-                                    .align(Alignment.Center)
-                            )
-                        }
+                                .fillMaxSize()
+                                .padding(innerPadding),
+                            context = this,
+                            onGameEnd = { gameResult ->
+                                // Handle game end
+                                gameOn = false // Reset game state
+                            },
+                            chips = chips,
+                            bet = betAmount
+                        )
                     }
                 }
             }
