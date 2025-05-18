@@ -16,28 +16,30 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.ui.layout.positionOnScreen
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.mainskown.blackjack.models.Card
 
 @Composable
 fun DisplayCard(
-    card: Card,
+    card: Card?,
     modifier: Modifier = Modifier,
     visible: Boolean = true,
     size: Dp = 80.dp,
     positionRead: ((Offset) -> Unit)? = null
 ) {
-    var isFaceUp by remember { mutableStateOf(card.isFaceUp) }
+    var isFaceUp by remember { mutableStateOf(card?.isFaceUp) }
 
     // Sync state when card.isFaceUp changes externally
-    LaunchedEffect(card.isFaceUp) {
-        isFaceUp = card.isFaceUp
+    LaunchedEffect(card?.isFaceUp) {
+        isFaceUp = card?.isFaceUp
     }
 
     // Rotation angle for the Y-axis flip
     val rotation by animateFloatAsState(
-        targetValue = if (isFaceUp) 0f else 180f,
+        targetValue = if (isFaceUp == true) 0f else 180f,
         animationSpec = tween(durationMillis = 600),
         label = "CardRotation"
     )
@@ -49,15 +51,15 @@ fun DisplayCard(
         modifier = Modifier
             .size(size * 5 / 7, size)
             .then(modifier)
+            .onGloballyPositioned { coordinates ->
+                positionRead?.invoke(coordinates.positionInWindow())
+            }
             .graphicsLayer {
                 rotationY = rotation
                 cameraDistance = 12 * density
             }
-            .onGloballyPositioned { coordinates ->
-                positionRead?.invoke(coordinates.positionInRoot())
-            }
     ) {
-        if (!visible) return
+        if (!visible || card == null) return
 
         Image(
             bitmap = if (isFrontVisible) card.frontImage.asImageBitmap() else card.backImage.asImageBitmap(),

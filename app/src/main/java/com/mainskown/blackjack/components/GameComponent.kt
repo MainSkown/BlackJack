@@ -3,7 +3,6 @@ package com.mainskown.blackjack.components
 import android.content.Context
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,9 +26,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
@@ -39,12 +34,11 @@ import androidx.compose.ui.unit.dp
 import com.mainskown.blackjack.R
 import com.mainskown.blackjack.models.CardStyle
 import com.mainskown.blackjack.models.Deck
-import com.mainskown.blackjack.components.DisplayCard
 import com.mainskown.blackjack.models.Card
 import com.mainskown.blackjack.models.CardSuit
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
-import kotlin.div
 import kotlin.math.roundToInt
 
 @Composable
@@ -110,14 +104,9 @@ fun GameComponent(
                     DisplayCard(
                         modifier = Modifier
                             .fillMaxSize(),
-                        card = Card(
-                            context = context,
-                            suit = CardSuit.DIAMONDS,
-                            value = 1,
-                            isFaceUp = true,
-                        ),
+                        card = null,
                         size = 130.dp,
-                        visible = false,
+                        visible = true,
                         positionRead = { offset ->
                             dealerHandPosition.value = offset
                         }
@@ -171,19 +160,20 @@ fun GameComponent(
             }
 
             // Player's hand
-            DisplayCard(
+            displayCardHand(
                 modifier = Modifier
-                    .fillMaxSize(),
-                card = Card(
-                    context = context,
-                    suit = CardSuit.DIAMONDS,
-                    value = 1,
-                    isFaceUp = true
-                ),
-                size = 130.dp
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                cards = playerHand,
+                cardSize = 130.dp,
+                rotateStep = 10f,
+                arcRadius = 450.dp,
+                globalPositionRead = { offset ->
+                    playerHandPosition.value = offset
+                }
             )
             Text(
-                text = "Value: 11",
+                text = "Value: ${calcValue(playerHand.toTypedArray())}",
             )
         }
 
@@ -196,20 +186,22 @@ fun GameComponent(
         var animationKey by remember { mutableIntStateOf(0) }
         /* Init game */
         if (shouldStartGame) {
-            // 1. Shuffle the deck
             deck.shuffle()
-            // 2. Deal first card to dealer
-            dealCardToDealer(
-                hand = dealerHand,
-                card = deck.drawCard().apply { isFaceUp = false },
-                deckPosition = deckPosition.value,
-                handPosition = dealerHandPosition.value,
-                size = 130.dp,
-                onAnimationEnd = {
-                    animationKey++
-                }
-            )
+
+            key(animationKey) {
+                dealCard(
+                    hand = if(animationKey % 2 == 0) dealerHand else playerHand,
+                    card = deck.drawCard().apply { isFaceUp = animationKey != 0 },
+                    deckPosition = deckPosition.value,
+                    handPosition = if (animationKey % 2 == 0) dealerHandPosition.value else playerHandPosition.value,
+                    size = 130.dp,
+                    onAnimationEnd = {
+                        if(animationKey < 3) animationKey++
+                    }
+                )
+            }
         }
+
     }
 }
 
@@ -219,13 +211,13 @@ fun AnimatedDealingCard(
     deckPosition: Offset,
     handPosition: Offset,
     size: Dp = 130.dp,
-    animationDuration: Int = 600,
+    animationDuration: Int = 400,
     onAnimationEnd: (() -> Unit)? = null
 ) {
-    val offset = 115f // Perfect for my phone, don't care about others
+    val offset = 115f 
     val startX = deckPosition.x
     // The Y value for some reason is not the same as in reality and this is a fix
-    val startY = deckPosition.y - offset
+    val startY = deckPosition.y - offset * 4
     val endX = handPosition.x
     val endY = handPosition.y - offset
 
@@ -241,27 +233,31 @@ fun AnimatedDealingCard(
         if (!animationPlayed) {
             animationPlayed = true
             coroutineScope {
-                launch {
+                val xJob = launch {
                     animX.animateTo(
                         targetValue = endX,
                         animationSpec = tween(durationMillis = animationDuration)
                     )
                 }
-                launch {
+                val yJob = launch {
                     animY.animateTo(
                         targetValue = endY,
                         animationSpec = tween(durationMillis = animationDuration)
                     )
                 }
-                launch {
+                val rotJob = launch {
                     animRotation.animateTo(
                         targetValue = 0f,
                         animationSpec = tween(durationMillis = 400)
                     )
                 }
+                listOf(xJob, yJob, rotJob).joinAll()
             }
-            isVisible = false
+
+            // First call onAnimationEnd (which adds the card to the hand) 
+            // before making the animated card invisible
             onAnimationEnd?.invoke()
+            isVisible = false
         }
     }
 
@@ -284,7 +280,7 @@ fun AnimatedDealingCard(
 }
 
 @Composable
-fun dealCardToDealer(
+fun dealCard(
     hand: MutableList<Card>,
     card: Card,
     deckPosition: Offset,
@@ -311,8 +307,12 @@ fun calcValue(
     var aces = 0
 
     for (card in hand) {
+        if (!card.isFaceUp) continue
+
         if (card.value == 1) {
             aces++
+        } else if (card.value >= 10) {
+            value += 10
         } else {
             value += card.value
         }
@@ -329,3 +329,4 @@ fun calcValue(
 
     return value
 }
+
