@@ -26,4 +26,16 @@
         <item>A bet must be worth at least 10 chips.</item>
     </string-array>
     <string name="title_activity_settings_page">SettingsPage</string>
+    <string name="title_activity_game_page">GamePage</string>
+
+    <!-- Game screen -->
+        <!-- Betting -->
+    <string name="game_chips">Chips: %1$d</string>
+    <string name="game_betting">Betting: %1$d</string>
+    <string-array name="game_bet_options">
+        <item>Bet ¼</item>
+        <item>Bet ½</item>
+        <item>Bet ¾</item>
+        <item>Bet All</item>
+    </string-array>
 </resources>

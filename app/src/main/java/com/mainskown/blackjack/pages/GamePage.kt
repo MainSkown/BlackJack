@@ -10,14 +10,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import com.mainskown.blackjack.ui.theme.BlackJackTheme
-import kotlin.math.ceil
+import com.mainskown.blackjack.components.BiddingComponent
 
 class GamePage : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,17 +30,17 @@ class GamePage : ComponentActivity() {
                     var gameOn by remember { mutableStateOf(false) } // Game state
                     /* Bidding Faze */
                     if (!gameOn) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
+                        BiddingComponent(
+                            modifier = Modifier.
+                                fillMaxSize()
                                 .padding(innerPadding)
-                        ) {
-                            Text(
-                                text = "Bidding Faze",
-                                modifier = Modifier
-                                    .align(Alignment.Center)
-                            )
-                        }
+                                .padding(top= 50.dp),
+                            chips = chips,
+                            onBetSelected = { bet ->
+                                // Handle bet selection
+                                gameOn = true // Start the game
+                            }
+                        )
                     }
                     /* Game Faze */
                     else {
