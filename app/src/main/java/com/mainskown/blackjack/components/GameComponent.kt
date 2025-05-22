@@ -114,27 +114,16 @@ fun GameComponent(
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                if (dealerHand.isEmpty()) {
-                    // Fake card to get the position
-                    DisplayCard(
-                        modifier = Modifier
-                            .fillMaxSize(),
-                        card = null,
-                        size = 130.dp,
-                        visible = true,
-                        positionRead = { offset ->
-                            dealerHandPosition.value = offset
-                        }
-                    )
-                }
-                for (card in dealerHand) {
-                    DisplayCard(
-                        modifier = Modifier
-                            .fillMaxSize(),
-                        card = card,
-                        size = 130.dp
-                    )
-                }
+                displayDealerHand(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    cards = dealerHand,
+                    cardSize = 130.dp,
+                    globalPositionRead = { offset ->
+                        dealerHandPosition.value = offset
+                    }
+                )
             }
 
             Text(
@@ -275,6 +264,7 @@ fun GameComponent(
                 }
             }
         }
+
         var animationFaceDown by remember { mutableStateOf(false) }
 
         // Trigger the animation when positions are ready
