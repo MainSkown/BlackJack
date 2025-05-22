@@ -3,6 +3,7 @@ package com.mainskown.blackjack.components
 import android.content.Context
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -27,7 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
@@ -62,7 +64,7 @@ fun GameComponent(
     var playersKey by remember { mutableIntStateOf(0) }
     var inAnimation by remember { mutableStateOf(false) }
 
-    var shouldStartGame by remember { mutableStateOf(false) }
+    var gameStarted by remember { mutableStateOf(false) }
 
 
     Box(
@@ -81,16 +83,7 @@ fun GameComponent(
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
             )
-            Text(
-                text = stringResource(R.string.game_chips, chips),
-                style = MaterialTheme.typography.titleMedium,
-            )
-            // Display bet
-            Text(
-                text = stringResource(R.string.game_betting, bet),
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.padding(16.dp)
-            )
+
             Text(
                 text = "Dealer's Hand",
             )
@@ -130,11 +123,31 @@ fun GameComponent(
                 text = "Dealer's value: ${calcValue(dealerHand.toTypedArray())}",
             )
 
-            // A card that imitates deck
-            Box(
-                modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.CenterEnd
+
+            // Row to align chips/bet on the left and deck on the right
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
+                // Left side: Chips and Bet
+                Column(
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.Start
+                ) {
+                    Text(
+                        text = stringResource(R.string.game_chips, chips),
+                        style = MaterialTheme.typography.bodyLarge,
+                    )
+                    Text(
+                        text = stringResource(R.string.game_betting, bet),
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
+                }
+                // Right side: Deck
                 Box(
                     contentAlignment = Alignment.Center
                 ) {
@@ -164,21 +177,71 @@ fun GameComponent(
             }
 
             // Player's hand
-            displayCardHand(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                cards = playerHand,
-                cardSize = 130.dp,
-                rotateStep = 10f,
-                arcRadius = 450.dp,
-                globalPositionRead = { offset ->
-                    playerHandPosition.value = offset
+                displayCardHand(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    cards = playerHand,
+                    cardSize = 130.dp,
+                    rotateStep = 10f,
+                    arcRadius = 450.dp,
+                    globalPositionRead = { offset ->
+                        playerHandPosition.value = offset
+                    }
+                )
+                Text(
+                    text = "Value: ${calcValue(playerHand.toTypedArray())}",
+                )
+
+            if(gameStarted && !inAnimation){
+                Row(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 32.dp)
+                        .padding(bottom = 25.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.Bottom
+                ){
+                    // Hit button
+                    Button(
+                        onClick = {
+                            playersKey++
+                            inAnimation = true
+                        },
+                        modifier = Modifier
+                            .size(90.dp, 40.dp)
+                            .border(
+                            width = 2.dp,
+                            color = Color(0xFFFFD700), // Gold
+                            shape = MaterialTheme.shapes.medium
+                        ),
+                        colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors()
+                    ) {
+                        Text(
+                            text = "Hit",
+                            color = Color.White
+                        )
+                    }
+
+                    // Hold button
+                    Button(
+                        onClick = { /*TODO : Implement Hold logic*/ },
+                        modifier = Modifier
+                            .size(90.dp, 40.dp)
+                            .border(
+                            width = 2.dp,
+                            color = Color(0xFFFFD700), // Gold
+                            shape = MaterialTheme.shapes.medium
+                        ),
+                        colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors()
+                    ) {
+                        Text(
+                            text = "Hold",
+                            color = Color.White
+                        )
+                    }
                 }
-            )
-            Text(
-                text = "Value: ${calcValue(playerHand.toTypedArray())}",
-            )
+            }
         }
         var animationFaceDown by remember { mutableStateOf(false) }
         // Trigger the animation when positions are ready
@@ -205,7 +268,7 @@ fun GameComponent(
                         kotlinx.coroutines.delay(10)
                 }
 
-                shouldStartGame = true
+                gameStarted = true
             }
         }
 
@@ -367,4 +430,3 @@ fun calcValue(
 
     return value
 }
-
