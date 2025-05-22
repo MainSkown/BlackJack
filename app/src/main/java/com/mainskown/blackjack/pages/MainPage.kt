@@ -80,7 +80,11 @@ class MainActivity : ComponentActivity() {
                                 cards = listOf("Start", "High Score", "Rules"),
                                 onCardClick = { index ->
                                     when (index) {
-                                        0 -> { /* TODO: Start game logic */
+                                        0 -> {
+                                            // Transition to GamePage
+                                            val intent =
+                                                Intent(this@MainActivity, GamePage::class.java)
+                                            startActivity(intent)
                                         }
 
                                         1 -> { /* TODO: High score logic */

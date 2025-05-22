@@ -26,4 +26,31 @@
         <item>A bet must be worth at least 10 chips.</item>
     </string-array>
     <string name="title_activity_settings_page">SettingsPage</string>
+    <string name="title_activity_game_page">GamePage</string>
+
+    <!-- Game screen -->
+        <!-- Betting -->
+    <string name="game_chips">Chips: %1$d</string>
+    <string name="game_betting">Betting: %1$d</string>
+    <string-array name="game_bet_options">
+        <item>Bet ¼</item>
+        <item>Bet ½</item>
+        <item>Bet ¾</item>
+        <item>Bet All</item>
+    </string-array>
+    <string name="game_over">Game Over!</string>
+    <string name="game_out_of_chips">You are out of chips!</string>
+    <string name="game_new_game">New Game</string>
+    <string name="game_would_you_like_to_play_again">Would you like to play again?</string>
+    <string name="game_dealer_hand">Dealer\'s Hand</string>
+    <string name="game_dealer_value">Dealer\'s value: %1$d</string>
+    <string name="game_deck">Deck</string>
+    <string name="game_value">Value: %1$d</string>
+    <string name="game_hit">Hit</string>
+    <string name="game_hold">Hold</string>
+    <string name="game_won">You won!</string>
+    <string name="game_lost">You lost!</string>
+    <string name="game_draw">It\'s a draw!</string>
+    <string name="game_chips_left">%1$d chips</string>
+    <string name="game_continue">Continue</string>
 </resources>

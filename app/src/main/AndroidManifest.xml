@@ -12,7 +12,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.BlackJack"
         tools:targetApi="31">
-
+        <activity
+            android:name=".pages.GamePage"
+            android:exported="false"
+            android:label="@string/title_activity_game_page"
+            android:theme="@style/Theme.BlackJack" />
         <activity
             android:name=".pages.MainActivity"
             android:exported="true"
