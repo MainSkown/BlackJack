@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -49,7 +50,7 @@ fun GameComponent(
     bet: Int,
     modifier: Modifier = Modifier,
 ) {
-    val deck = Deck(context, CardStyle.CLASSIC)
+    val deck = remember {  Deck(context, CardStyle.CLASSIC) }
     val dealerHand = remember { mutableStateListOf<Card>() }
     val playerHand = remember { mutableStateListOf<Card>() }
 
@@ -57,9 +58,12 @@ fun GameComponent(
     var dealerHandPosition = remember { mutableStateOf(Offset.Zero) }
     var playerHandPosition = remember { mutableStateOf(Offset.Zero) }
 
-    val density = LocalDensity.current
+    var dealersKey by remember { mutableIntStateOf(0) }
+    var playersKey by remember { mutableIntStateOf(0) }
+    var inAnimation by remember { mutableStateOf(false) }
 
     var shouldStartGame by remember { mutableStateOf(false) }
+
 
     Box(
         modifier = modifier
@@ -176,32 +180,66 @@ fun GameComponent(
                 text = "Value: ${calcValue(playerHand.toTypedArray())}",
             )
         }
-
+        var animationFaceDown by remember { mutableStateOf(false) }
         // Trigger the animation when positions are ready
         LaunchedEffect(deckPosition.value, dealerHandPosition.value) {
             if (deckPosition.value != Offset.Zero && dealerHandPosition.value != Offset.Zero && dealerHand.isEmpty()) {
+                deck.shuffle()
+
+                // Start the game
+                for(i in 0 until 4){
+                    if (i % 2 == 0) {
+                        if (i == 0)
+                            // First cards is faceDown
+                            animationFaceDown = true
+
+                        dealersKey++
+                        inAnimation = true
+                    } else {
+                        playersKey++
+                        inAnimation = true
+                    }
+
+                    // Wait for animation to end
+                    while(inAnimation)
+                        kotlinx.coroutines.delay(10)
+                }
+
                 shouldStartGame = true
             }
         }
-        var animationKey by remember { mutableIntStateOf(0) }
-        /* Init game */
-        if (shouldStartGame) {
-            deck.shuffle()
 
-            key(animationKey) {
+        // Dealing card to dealer's hand
+        if (dealersKey > 0)
+            key(dealersKey) {
                 dealCard(
-                    hand = if(animationKey % 2 == 0) dealerHand else playerHand,
-                    card = deck.drawCard().apply { isFaceUp = animationKey != 0 },
+                    hand = dealerHand,
+                    card = deck.drawCard().apply { isFaceUp = !animationFaceDown },
                     deckPosition = deckPosition.value,
-                    handPosition = if (animationKey % 2 == 0) dealerHandPosition.value else playerHandPosition.value,
+                    handPosition = dealerHandPosition.value,
                     size = 130.dp,
                     onAnimationEnd = {
-                        if(animationKey < 3) animationKey++
+                        animationFaceDown = false
+                        inAnimation = false
                     }
                 )
             }
-        }
 
+        // Dealing card to player's hand
+        if (playersKey > 0)
+            key(playersKey) {
+                dealCard(
+                    hand = playerHand,
+                    card = deck.drawCard(),
+                    deckPosition = deckPosition.value,
+                    handPosition = playerHandPosition.value,
+                    size = 130.dp,
+                    onAnimationEnd = {
+                        animationFaceDown = false
+                        inAnimation = false
+                    }
+                )
+            }
     }
 }
 
@@ -211,10 +249,10 @@ fun AnimatedDealingCard(
     deckPosition: Offset,
     handPosition: Offset,
     size: Dp = 130.dp,
-    animationDuration: Int = 400,
+    animationDuration: Int = 600,
     onAnimationEnd: (() -> Unit)? = null
 ) {
-    val offset = 115f 
+    val offset = 115f
     val startX = deckPosition.x
     // The Y value for some reason is not the same as in reality and this is a fix
     val startY = deckPosition.y - offset * 4
