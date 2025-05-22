@@ -32,6 +32,7 @@ import com.mainskown.blackjack.ui.theme.BlackJackTheme
 import com.mainskown.blackjack.components.BiddingComponent
 import com.mainskown.blackjack.components.GameComponent
 import com.mainskown.blackjack.components.GameResult
+import com.mainskown.blackjack.R
 
 class GamePage : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,7 +59,7 @@ class GamePage : ComponentActivity() {
                             onDismissRequest = {},
                             title = {
                                 Text(
-                                    text = "Game Over!",
+                                    text = getString(R.string.game_over),
                                     style = MaterialTheme.typography.titleMedium,
                                     modifier = Modifier.fillMaxWidth(),
                                     color = Color(0xFFD32F2F),
@@ -71,7 +72,7 @@ class GamePage : ComponentActivity() {
                                     modifier = Modifier.fillMaxWidth()
                                 ) {
                                     Text(
-                                        text = "You're out of chips!",
+                                        text = getString(R.string.game_out_of_chips),
                                         style = MaterialTheme.typography.titleSmall,
                                         modifier = Modifier
                                             .fillMaxWidth()
@@ -79,7 +80,7 @@ class GamePage : ComponentActivity() {
                                         textAlign = TextAlign.Center
                                     )
                                     Text(
-                                        text = "Would you like to start a new game?",
+                                        text = getString(R.string.game_would_you_like_to_play_again),
                                         style = MaterialTheme.typography.bodyLarge,
                                         modifier = Modifier.fillMaxWidth(),
                                         textAlign = TextAlign.Center
@@ -110,7 +111,7 @@ class GamePage : ComponentActivity() {
                                         colors = ButtonDefaults.outlinedButtonColors()
                                     ) {
                                         Text(
-                                            text = "New Game",
+                                            text = getString(R.string.game_new_game),
                                             color = Color.White
                                         )
                                     }
@@ -120,7 +121,7 @@ class GamePage : ComponentActivity() {
                     }
 
                     /* Bidding Faze */
-                    if (!gameOn) {
+                    if (!gameOn && !showOutOfChipsDialog) {
                         BiddingComponent(
                             modifier = Modifier
                                 .fillMaxSize()

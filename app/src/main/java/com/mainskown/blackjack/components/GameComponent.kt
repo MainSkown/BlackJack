@@ -107,7 +107,7 @@ fun GameComponent(
             )
 
             Text(
-                text = "Dealer's Hand",
+                text = stringResource(R.string.game_dealer_hand),
             )
 
             // Template for dealer's hand
@@ -131,7 +131,7 @@ fun GameComponent(
             }
 
             Text(
-                text = "Dealer's value: ${calcValue(dealerHand.toTypedArray())}",
+                text = stringResource(R.string.game_dealer_value, calcValue(dealerHand.toTypedArray())),
             )
 
 
@@ -179,7 +179,7 @@ fun GameComponent(
                         }
                     )
                     Text(
-                        text = "Deck",
+                        text = stringResource(R.string.game_deck),
                         modifier = Modifier
                             .rotate(-90f)
                             .padding(bottom = 16.dp),
@@ -202,7 +202,7 @@ fun GameComponent(
                 }
             )
             Text(
-                text = "Value: ${calcValue(playerHand.toTypedArray())}",
+                text = stringResource(R.string.game_value, calcValue(playerHand.toTypedArray())),
             )
 
 
@@ -238,10 +238,10 @@ fun GameComponent(
                                 color = Color(0xFFFFD700), // Gold
                                 shape = MaterialTheme.shapes.medium
                             ),
-                        colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors()
+                        colors = ButtonDefaults.outlinedButtonColors()
                     ) {
                         Text(
-                            text = "Hit",
+                            text = stringResource(R.string.game_hit),
                             color = Color.White
                         )
                     }
@@ -258,10 +258,10 @@ fun GameComponent(
                                 color = Color(0xFFFFD700), // Gold
                                 shape = MaterialTheme.shapes.medium
                             ),
-                        colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors()
+                        colors = ButtonDefaults.outlinedButtonColors()
                     ) {
                         Text(
-                            text = "Hold",
+                            text = stringResource(R.string.game_hold),
                             color = Color.White
                         )
                     }
@@ -400,9 +400,9 @@ fun GameComponent(
                     title = {
                         Text(
                             text = when (gameResult) {
-                                GameResult.WIN -> "You won!"
-                                GameResult.LOSE -> "You lost!"
-                                GameResult.DRAW -> "It's a draw!"
+                                GameResult.WIN -> stringResource(R.string.game_won)
+                                GameResult.LOSE -> stringResource(R.string.game_lost)
+                                GameResult.DRAW -> stringResource(R.string.game_draw)
 
                             },
                             style = MaterialTheme.typography.titleMedium,
@@ -421,7 +421,7 @@ fun GameComponent(
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Text(
-                                text = "Chips: $animatedChips",
+                                text = stringResource(R.string.game_chips, animatedChips),
                                 style = MaterialTheme.typography.titleSmall,
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -430,9 +430,9 @@ fun GameComponent(
                             )
                             Text(
                                 text = when (gameResult) {
-                                    GameResult.WIN -> "+$resultAmount chips"
-                                    GameResult.LOSE -> "$resultAmount chips"
-                                    GameResult.DRAW -> "+0 chips"
+                                    GameResult.WIN -> "+${stringResource(R.string.game_chips_left, resultAmount)}"
+                                    GameResult.LOSE -> stringResource(R.string.game_chips_left, resultAmount)
+                                    GameResult.DRAW -> "+${stringResource(R.string.game_chips_left, 0)}"
                                 },
                                 color = when (gameResult) {
                                     GameResult.WIN -> Color(0xFF43A047)
@@ -468,7 +468,7 @@ fun GameComponent(
                                 colors = ButtonDefaults.outlinedButtonColors()
                             ) {
                                 Text(
-                                    text = "Continue",
+                                    text = stringResource(R.string.game_continue),
                                     color = Color.White
                                 )
                             }
