@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -24,16 +26,17 @@ class GamePage : ComponentActivity() {
         setContent {
             BlackJackTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    var chips = 100 // Starting chips
-                    var betAmount = 25 // Initial bet amount
-                    var gameOn by remember { mutableStateOf(true) } // Game state
+                    var chips by remember { mutableIntStateOf(100) }// Starting chips
+                    var betAmount by remember { mutableIntStateOf(25) } // Initial bet amount
+                    var gameOn by remember { mutableStateOf(false) } // Game state
+                    var gameKey by remember { mutableIntStateOf(0) } // Game key for re-composition
                     /* Bidding Faze */
                     if (!gameOn) {
                         BiddingComponent(
-                            modifier = Modifier.
-                                fillMaxSize()
+                            modifier = Modifier
+                                .fillMaxSize()
                                 .padding(innerPadding)
-                                .padding(top= 50.dp),
+                                .padding(top = 50.dp),
                             chips = chips,
                             onBetSelected = { bet ->
                                 // Handle bet selection
@@ -45,6 +48,7 @@ class GamePage : ComponentActivity() {
                     }
                     /* Game Faze */
                     else {
+
                         GameComponent(
                             modifier = Modifier
                                 .fillMaxSize()
@@ -52,11 +56,18 @@ class GamePage : ComponentActivity() {
                             context = this,
                             onGameEnd = { gameResult ->
                                 // Handle game end
+                                // Update chips based on game result
+                                chips += when (gameResult) {
+                                    true -> betAmount
+                                    false -> -betAmount
+                                }
                                 gameOn = false // Reset game state
+                                gameKey += 1   // Force full recomposition and state reset
                             },
                             chips = chips,
                             bet = betAmount
                         )
+
                     }
                 }
             }

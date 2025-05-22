@@ -5,7 +5,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -17,7 +17,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -35,6 +37,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -69,7 +72,18 @@ fun GameComponent(
     var inAnimation by remember { mutableStateOf(false) }
 
     var gameStarted by remember { mutableStateOf(false) }
+    var playerFinished by remember { mutableStateOf(false) }
+    var gameEnded by remember { mutableStateOf(false) }
 
+    var showResultDialog by remember { mutableStateOf(false) }
+    var playerWon by remember { mutableStateOf(false) }
+
+    var chipsTarget by remember { mutableIntStateOf(chips) }
+    val animatedChips by animateIntAsState(
+        targetValue = chipsTarget,
+        animationSpec = tween(durationMillis = 800), label = "chipsAnim"
+    )
+    var resultAmount by remember { mutableIntStateOf(0) }
 
     Box(
         modifier = modifier
@@ -142,7 +156,7 @@ fun GameComponent(
                     horizontalAlignment = Alignment.Start
                 ) {
                     Text(
-                        text = stringResource(R.string.game_chips, chips),
+                        text = stringResource(R.string.game_chips, animatedChips),
                         style = MaterialTheme.typography.bodyLarge,
                     )
                     Text(
@@ -199,7 +213,7 @@ fun GameComponent(
 
 
             AnimatedVisibility(
-                visible = gameStarted && !inAnimation,
+                visible = gameStarted && !inAnimation && !playerFinished,
                 enter = slideInVertically(
                     initialOffsetY = { fullHeight -> fullHeight }, // Start below the screen
                     animationSpec = tween(durationMillis = 200)
@@ -240,7 +254,9 @@ fun GameComponent(
 
                     // Hold button
                     Button(
-                        onClick = { /*TODO : Implement Hold logic*/ },
+                        onClick = {
+                            playerFinished = true
+                        },
                         modifier = Modifier
                             .size(90.dp, 40.dp)
                             .border(
@@ -260,9 +276,10 @@ fun GameComponent(
             }
         }
         var animationFaceDown by remember { mutableStateOf(false) }
+
         // Trigger the animation when positions are ready
-        LaunchedEffect(deckPosition.value, dealerHandPosition.value) {
-            if (deckPosition.value != Offset.Zero && dealerHandPosition.value != Offset.Zero && dealerHand.isEmpty()) {
+        LaunchedEffect(deckPosition.value, dealerHandPosition.value, gameEnded) {
+            if (!gameEnded && deckPosition.value != Offset.Zero && dealerHandPosition.value != Offset.Zero && dealerHand.isEmpty()) {
                 deck.shuffle()
 
                 // Start the game
@@ -288,8 +305,135 @@ fun GameComponent(
             }
         }
 
+        // Calculate the player's hand value
+        LaunchedEffect(playerHand.toList()) {
+            if (playerHand.isNotEmpty()) {
+                val playerValue = calcValue(playerHand.toTypedArray())
+                if (playerValue >= 21)
+                    playerFinished = true
+            }
+        }
+
+        LaunchedEffect(playerFinished) {
+            if (playerFinished && !gameEnded) {
+                // Dealer's turn: flip the first card by replacing it with a new instance
+                if (dealerHand.isNotEmpty() && !dealerHand[0].isFaceUp) {
+                    val old = dealerHand[0]
+                    dealerHand[0] = Card(
+                        context = old.context,
+                        value = old.value,
+                        suit = old.suit,
+                        isFaceUp = true,
+                        style = old.style
+                    )
+                    // Wait for flip the animation to end
+                    kotlinx.coroutines.delay(600)
+                }
+
+                val playersValue = calcValue(playerHand.toTypedArray())
+
+                while (calcValue(dealerHand.toTypedArray()) < playersValue) {
+                    dealersKey++
+                    inAnimation = true
+
+                    // Wait for animation to end
+                    while (inAnimation)
+                        kotlinx.coroutines.delay(10)
+                }
+
+                // Wait for a bit before ending the game for player to realise what happened
+                kotlinx.coroutines.delay(600)
+                gameEnded = true
+            }
+        }
+
+        // End game
+        LaunchedEffect(gameEnded) {
+            if (gameEnded) {
+                val dealersValue = calcValue(dealerHand.toTypedArray())
+                val playersValue = calcValue(playerHand.toTypedArray())
+                // Check for win/loss
+                if (playersValue > 21 || (dealersValue <= 21 && dealersValue > playersValue)) {
+                    playerWon = false
+                    resultAmount = -bet
+                    chipsTarget = chips + resultAmount
+                } else {
+                    playerWon = true
+                    resultAmount = bet
+                    chipsTarget = chips + resultAmount
+                }
+                showResultDialog = true
+            }
+        }
+
+        if (showResultDialog) {
+            AlertDialog(
+                onDismissRequest = {},
+                title = {
+                    Text(
+                        text = if (playerWon) "You Won!" else "You Lost!",
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.fillMaxWidth(),
+                        color = if (playerWon) Color(0xFF43A047) else Color(0xFFD32F2F),
+                        textAlign = TextAlign.Center
+                    )
+                },
+                text = {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = "Chips: $animatedChips",
+                            style = MaterialTheme.typography.titleSmall,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 8.dp),
+                            textAlign = TextAlign.Center
+                        )
+                        Text(
+                            text = if (playerWon) "+$bet chips" else "-$bet chips",
+                            color = if (playerWon) Color(0xFF43A047) else Color(0xFFD32F2F),
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                },
+                confirmButton = {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center,
+                    ) {
+                        Button(
+                            onClick = {
+                                showResultDialog = false
+                                onGameEnd(
+                                    playerWon
+                                )
+                            },
+                            modifier = Modifier
+                                .size(120.dp, 40.dp)
+                                .border(
+                                    width = 2.dp,
+                                    color = Color(0xFFFFD700), // Gold
+                                    shape = MaterialTheme.shapes.medium
+                                ),
+                            colors = ButtonDefaults.outlinedButtonColors()
+                        ) {
+                            Text(
+                                text = "Continue",
+                                color = Color.White
+                            )
+                        }
+                    }
+                })
+        }
+
+
         // Dealing card to dealer's hand
-        if (dealersKey > 0)
+        if (dealersKey > 0 && !gameEnded)
             key(dealersKey) {
                 dealCard(
                     hand = dealerHand,
@@ -305,7 +449,7 @@ fun GameComponent(
             }
 
         // Dealing card to player's hand
-        if (playersKey > 0)
+        if (playersKey > 0 && !gameEnded)
             key(playersKey) {
                 dealCard(
                     hand = playerHand,
