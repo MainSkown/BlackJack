@@ -51,10 +51,14 @@ import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
+enum class GameResult {
+    WIN, LOSE, DRAW
+}
+
 @Composable
 fun GameComponent(
     context: Context,
-    onGameEnd: (Boolean) -> Unit,
+    onGameEnd: (GameResult) -> Unit,
     chips: Int,
     bet: Int,
     modifier: Modifier = Modifier,
@@ -76,7 +80,7 @@ fun GameComponent(
     var gameEnded by remember { mutableStateOf(false) }
 
     var showResultDialog by remember { mutableStateOf(false) }
-    var playerWon by remember { mutableStateOf(false) }
+    var gameResult by remember { mutableStateOf(GameResult.LOSE) }
 
     var chipsTarget by remember { mutableIntStateOf(chips) }
     val animatedChips by animateIntAsState(
@@ -153,13 +157,8 @@ fun GameComponent(
                         style = MaterialTheme.typography.bodyLarge,
                         modifier = Modifier.padding(top = 8.dp)
                     )
-                    // Display amount of cards
-                    Text(
-                        text = "Cards: ${deck.amountOfCards()}",
-                        style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.padding(top = 8.dp)
-                    )
                 }
+
                 // Right side: Deck
                 Box(
                     contentAlignment = Alignment.Center
@@ -301,6 +300,16 @@ fun GameComponent(
                         kotlinx.coroutines.delay(10)
                 }
 
+                // If dealer has blackjack, end the game
+                if (calcValue(dealerHand.toTypedArray(), ignoreFaceDown = true) == 21) {
+                    playerFinished = true
+                    kotlinx.coroutines.delay(600)
+                }
+                // Same for the player
+                if (calcValue(playerHand.toTypedArray()) == 21 && !playerFinished) {
+                    playerFinished = true
+                    kotlinx.coroutines.delay(600)
+                }
                 gameStarted = true
             }
         }
@@ -309,8 +318,16 @@ fun GameComponent(
         LaunchedEffect(playerHand.toList()) {
             if (playerHand.isNotEmpty()) {
                 val playerValue = calcValue(playerHand.toTypedArray())
-                if (playerValue >= 21)
+                if (playerValue >= 21) {
+                    if(playerValue > 21) {
+                        gameEnded = true
+                        // Wait for a bit before ending the game for player to realise what happened
+                        kotlinx.coroutines.delay(600)
+                    }
+
                     playerFinished = true
+
+                }
             }
         }
 
@@ -332,14 +349,15 @@ fun GameComponent(
 
                 val playersValue = calcValue(playerHand.toTypedArray())
 
-                while (calcValue(dealerHand.toTypedArray()) < playersValue) {
-                    dealersKey++
-                    inAnimation = true
+                if(playersValue != 21)
+                    while (calcValue(dealerHand.toTypedArray()) < playersValue) {
+                        dealersKey++
+                        inAnimation = true
 
-                    // Wait for animation to end
-                    while (inAnimation)
-                        kotlinx.coroutines.delay(10)
-                }
+                        // Wait for animation to end
+                        while (inAnimation)
+                            kotlinx.coroutines.delay(10)
+                    }
 
                 // Wait for a bit before ending the game for player to realise what happened
                 kotlinx.coroutines.delay(600)
@@ -352,83 +370,110 @@ fun GameComponent(
             if (gameEnded) {
                 val dealersValue = calcValue(dealerHand.toTypedArray())
                 val playersValue = calcValue(playerHand.toTypedArray())
-                // Check for win/loss
-                if (playersValue > 21 || (dealersValue <= 21 && dealersValue > playersValue)) {
-                    playerWon = false
-                    resultAmount = -bet
-                    chipsTarget = chips + resultAmount
-                } else {
-                    playerWon = true
-                    resultAmount = bet
-                    chipsTarget = chips + resultAmount
-                }
-                showResultDialog = true
-            }
-        }
 
-        if (showResultDialog) {
-            AlertDialog(
-                onDismissRequest = {},
-                title = {
-                    Text(
-                        text = if (playerWon) "You Won!" else "You Lost!",
-                        style = MaterialTheme.typography.titleMedium,
-                        modifier = Modifier.fillMaxWidth(),
-                        color = if (playerWon) Color(0xFF43A047) else Color(0xFFD32F2F),
-                        textAlign = TextAlign.Center
-                    )
-                },
-                text = {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(
-                            text = "Chips: $animatedChips",
-                            style = MaterialTheme.typography.titleSmall,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = 8.dp),
-                            textAlign = TextAlign.Center
-                        )
-                        Text(
-                            text = if (playerWon) "+$bet chips" else "-$bet chips",
-                            color = if (playerWon) Color(0xFF43A047) else Color(0xFFD32F2F),
-                            style = MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier.fillMaxWidth(),
-                            textAlign = TextAlign.Center
-                        )
-                    }
-                },
-                confirmButton = {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center,
-                    ) {
-                        Button(
-                            onClick = {
-                                showResultDialog = false
-                                onGameEnd(
-                                    playerWon
-                                )
-                            },
-                            modifier = Modifier
-                                .size(120.dp, 40.dp)
-                                .border(
-                                    width = 2.dp,
-                                    color = Color(0xFFFFD700), // Gold
-                                    shape = MaterialTheme.shapes.medium
-                                ),
-                            colors = ButtonDefaults.outlinedButtonColors()
-                        ) {
-                            Text(
-                                text = "Continue",
-                                color = Color.White
-                            )
+                // Check for win/loss
+                gameResult =
+                        // Game lost if player value is greater than 21
+                    if (playersValue > 21 || (dealersValue <= 21 && playersValue < dealersValue)) {
+                        chipsTarget -= bet
+                        resultAmount = -bet
+                        GameResult.LOSE
+                    } else {
+                        // Game won if player value is greater than dealer value or dealer exceeds 21
+                        if (playersValue > dealersValue || dealersValue > 21) {
+                            chipsTarget += bet
+                            resultAmount = bet
+                            GameResult.WIN
+                        }  else {
+                            // Game draw if player value is equal to dealer value
+                            chipsTarget += 0
+                            resultAmount = 0
+                            GameResult.DRAW
                         }
                     }
-                })
+                showResultDialog = true
+            }}
+
+            if (showResultDialog) {
+                AlertDialog(
+                    onDismissRequest = {},
+                    title = {
+                        Text(
+                            text = when (gameResult) {
+                                GameResult.WIN -> "You won!"
+                                GameResult.LOSE -> "You lost!"
+                                GameResult.DRAW -> "It's a draw!"
+
+                            },
+                            style = MaterialTheme.typography.titleMedium,
+                            modifier = Modifier.fillMaxWidth(),
+                            color = when (gameResult) {
+                                GameResult.WIN -> Color(0xFF43A047)
+                                GameResult.LOSE -> Color(0xFFD32F2F)
+                                GameResult.DRAW -> Color(0xFFFFA000)
+                            },
+                            textAlign = TextAlign.Center
+                        )
+                    },
+                    text = {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = "Chips: $animatedChips",
+                                style = MaterialTheme.typography.titleSmall,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 8.dp),
+                                textAlign = TextAlign.Center
+                            )
+                            Text(
+                                text = when (gameResult) {
+                                    GameResult.WIN -> "+$resultAmount chips"
+                                    GameResult.LOSE -> "$resultAmount chips"
+                                    GameResult.DRAW -> "+0 chips"
+                                },
+                                color = when (gameResult) {
+                                    GameResult.WIN -> Color(0xFF43A047)
+                                    GameResult.LOSE -> Color(0xFFD32F2F)
+                                    GameResult.DRAW -> Color(0xFFFFA000)
+                                },
+                                style = MaterialTheme.typography.bodyLarge,
+                                modifier = Modifier.fillMaxWidth(),
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    },
+                    confirmButton = {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center,
+                        ) {
+                            Button(
+                                onClick = {
+                                    showResultDialog = false
+                                    onGameEnd(
+                                        gameResult
+                                    )
+                                },
+                                modifier = Modifier
+                                    .size(120.dp, 40.dp)
+                                    .border(
+                                        width = 2.dp,
+                                        color = Color(0xFFFFD700), // Gold
+                                        shape = MaterialTheme.shapes.medium
+                                    ),
+                                colors = ButtonDefaults.outlinedButtonColors()
+                            ) {
+                                Text(
+                                    text = "Continue",
+                                    color = Color.White
+                                )
+                            }
+                        }
+                    })
         }
 
         // Dealing card to dealer's hand
@@ -602,12 +647,13 @@ fun dealCard(
 
 fun calcValue(
     hand: Array<Card>,
+    ignoreFaceDown: Boolean = false
 ): Int {
     var value = 0
     var aces = 0
 
     for (card in hand) {
-        if (!card.isFaceUp) continue
+        if (!ignoreFaceDown && !card.isFaceUp) continue
 
         if (card.value == 1) {
             aces++

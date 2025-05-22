@@ -4,20 +4,34 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.mainskown.blackjack.ui.theme.BlackJackTheme
 import com.mainskown.blackjack.components.BiddingComponent
 import com.mainskown.blackjack.components.GameComponent
+import com.mainskown.blackjack.components.GameResult
 
 class GamePage : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,7 +43,82 @@ class GamePage : ComponentActivity() {
                     var chips by remember { mutableIntStateOf(100) }// Starting chips
                     var betAmount by remember { mutableIntStateOf(25) } // Initial bet amount
                     var gameOn by remember { mutableStateOf(false) } // Game state
-                    var gameKey by remember { mutableIntStateOf(0) } // Game key for re-composition
+
+                    // Add state for the "out of chips" dialog
+                    var showOutOfChipsDialog by remember { mutableStateOf(false) }
+
+                    // Check if player is out of chips
+                    if (chips <= 0 && !showOutOfChipsDialog) {
+                        showOutOfChipsDialog = true
+                    }
+
+                    // Out of chips dialog
+                    if (showOutOfChipsDialog) {
+                        AlertDialog(
+                            onDismissRequest = {},
+                            title = {
+                                Text(
+                                    text = "Game Over!",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    modifier = Modifier.fillMaxWidth(),
+                                    color = Color(0xFFD32F2F),
+                                    textAlign = TextAlign.Center
+                                )
+                            },
+                            text = {
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Text(
+                                        text = "You're out of chips!",
+                                        style = MaterialTheme.typography.titleSmall,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(top = 8.dp),
+                                        textAlign = TextAlign.Center
+                                    )
+                                    Text(
+                                        text = "Would you like to start a new game?",
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        modifier = Modifier.fillMaxWidth(),
+                                        textAlign = TextAlign.Center
+                                    )
+                                }
+                            },
+                            confirmButton = {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.Center,
+                                ) {
+                                    Button(
+                                        onClick = {
+                                            // Reset game with 100 chips
+                                            chips = 100
+                                            betAmount = 25
+                                            gameOn = false
+                                            showOutOfChipsDialog = false
+                                        },
+                                        modifier = Modifier
+                                            .size(120.dp, 40.dp)
+                                            .border(
+                                                width = 2.dp,
+                                                color = Color(0xFFFFD700), // Gold
+                                                shape = MaterialTheme.shapes.medium
+                                            ),
+                                        colors = ButtonDefaults.outlinedButtonColors()
+                                    ) {
+                                        Text(
+                                            text = "New Game",
+                                            color = Color.White
+                                        )
+                                    }
+                                }
+                            }
+                        )
+                    }
+
                     /* Bidding Faze */
                     if (!gameOn) {
                         BiddingComponent(
@@ -48,7 +137,6 @@ class GamePage : ComponentActivity() {
                     }
                     /* Game Faze */
                     else {
-
                         GameComponent(
                             modifier = Modifier
                                 .fillMaxSize()
@@ -58,11 +146,11 @@ class GamePage : ComponentActivity() {
                                 // Handle game end
                                 // Update chips based on game result
                                 chips += when (gameResult) {
-                                    true -> betAmount
-                                    false -> -betAmount
+                                    GameResult.WIN -> betAmount
+                                    GameResult.LOSE -> -betAmount
+                                    GameResult.DRAW -> 0
                                 }
                                 gameOn = false // Reset game state
-                                gameKey += 1   // Force full recomposition and state reset
                             },
                             chips = chips,
                             bet = betAmount
