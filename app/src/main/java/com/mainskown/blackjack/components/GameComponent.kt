@@ -153,6 +153,12 @@ fun GameComponent(
                         style = MaterialTheme.typography.bodyLarge,
                         modifier = Modifier.padding(top = 8.dp)
                     )
+                    // Display amount of cards
+                    Text(
+                        text = "Cards: ${deck.amountOfCards()}",
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
                 }
                 // Right side: Deck
                 Box(
@@ -266,6 +272,10 @@ fun GameComponent(
         }
 
         var animationFaceDown by remember { mutableStateOf(false) }
+
+        // Remember the drawn cards for dealer and player to prevent multiple draws during recomposition
+        val dealerCards = remember { mutableStateListOf<Card>() }
+        val playerCards = remember { mutableStateListOf<Card>() }
 
         // Trigger the animation when positions are ready
         LaunchedEffect(deckPosition.value, dealerHandPosition.value, gameEnded) {
@@ -421,37 +431,76 @@ fun GameComponent(
                 })
         }
 
-
         // Dealing card to dealer's hand
         if (dealersKey > 0 && !gameEnded)
             key(dealersKey) {
-                dealCard(
-                    hand = dealerHand,
-                    card = deck.drawCard().apply { isFaceUp = !animationFaceDown },
-                    deckPosition = deckPosition.value,
-                    handPosition = dealerHandPosition.value,
-                    size = 130.dp,
-                    onAnimationEnd = {
-                        animationFaceDown = false
-                        inAnimation = false
-                    }
-                )
+                // Check if we've already drawn a card for this key
+                if (dealerCards.size < dealersKey) {
+                    // Draw a new card only if we haven't already for this key
+                    val card = deck.drawCard().apply { isFaceUp = !animationFaceDown }
+                    dealerCards.add(card)
+
+                    dealCard(
+                        hand = dealerHand,
+                        card = card,
+                        deckPosition = deckPosition.value,
+                        handPosition = dealerHandPosition.value,
+                        size = 130.dp,
+                        onAnimationEnd = {
+                            animationFaceDown = false
+                            inAnimation = false
+                        }
+                    )
+                } else {
+                    // Use the previously drawn card
+                    dealCard(
+                        hand = dealerHand,
+                        card = dealerCards[dealersKey - 1],
+                        deckPosition = deckPosition.value,
+                        handPosition = dealerHandPosition.value,
+                        size = 130.dp,
+                        onAnimationEnd = {
+                            animationFaceDown = false
+                            inAnimation = false
+                        }
+                    )
+                }
             }
 
         // Dealing card to player's hand
         if (playersKey > 0 && !gameEnded)
             key(playersKey) {
-                dealCard(
-                    hand = playerHand,
-                    card = deck.drawCard(),
-                    deckPosition = deckPosition.value,
-                    handPosition = playerHandPosition.value,
-                    size = 130.dp,
-                    onAnimationEnd = {
-                        animationFaceDown = false
-                        inAnimation = false
-                    }
-                )
+                // Check if we've already drawn a card for this key
+                if (playerCards.size < playersKey) {
+                    // Draw a new card only if we haven't already for this key
+                    val card = deck.drawCard()
+                    playerCards.add(card)
+
+                    dealCard(
+                        hand = playerHand,
+                        card = card,
+                        deckPosition = deckPosition.value,
+                        handPosition = playerHandPosition.value,
+                        size = 130.dp,
+                        onAnimationEnd = {
+                            animationFaceDown = false
+                            inAnimation = false
+                        }
+                    )
+                } else {
+                    // Use the previously drawn card
+                    dealCard(
+                        hand = playerHand,
+                        card = playerCards[playersKey - 1],
+                        deckPosition = deckPosition.value,
+                        handPosition = playerHandPosition.value,
+                        size = 130.dp,
+                        onAnimationEnd = {
+                            animationFaceDown = false
+                            inAnimation = false
+                        }
+                    )
+                }
             }
     }
 }
