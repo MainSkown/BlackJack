@@ -1,8 +1,12 @@
 package com.mainskown.blackjack.components
 
 import android.content.Context
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -52,7 +56,7 @@ fun GameComponent(
     bet: Int,
     modifier: Modifier = Modifier,
 ) {
-    val deck = remember {  Deck(context, CardStyle.CLASSIC) }
+    val deck = remember { Deck(context, CardStyle.CLASSIC) }
     val dealerHand = remember { mutableStateListOf<Card>() }
     val playerHand = remember { mutableStateListOf<Card>() }
 
@@ -177,23 +181,34 @@ fun GameComponent(
             }
 
             // Player's hand
-                displayCardHand(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    cards = playerHand,
-                    cardSize = 130.dp,
-                    rotateStep = 10f,
-                    arcRadius = 450.dp,
-                    globalPositionRead = { offset ->
-                        playerHandPosition.value = offset
-                    }
-                )
-                Text(
-                    text = "Value: ${calcValue(playerHand.toTypedArray())}",
-                )
+            displayCardHand(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                cards = playerHand,
+                cardSize = 130.dp,
+                rotateStep = 10f,
+                arcRadius = 450.dp,
+                globalPositionRead = { offset ->
+                    playerHandPosition.value = offset
+                }
+            )
+            Text(
+                text = "Value: ${calcValue(playerHand.toTypedArray())}",
+            )
 
-            if(gameStarted && !inAnimation){
+
+            AnimatedVisibility(
+                visible = gameStarted && !inAnimation,
+                enter = slideInVertically(
+                    initialOffsetY = { fullHeight -> fullHeight }, // Start below the screen
+                    animationSpec = tween(durationMillis = 200)
+                ),
+                exit = slideOutVertically(
+                    targetOffsetY = { fullHeight -> fullHeight }, // Exit below the screen
+                    animationSpec = tween(durationMillis = 200)
+                )
+            ) {
                 Row(
                     modifier = Modifier
                         .fillMaxSize()
@@ -201,7 +216,7 @@ fun GameComponent(
                         .padding(bottom = 25.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.Bottom
-                ){
+                ) {
                     // Hit button
                     Button(
                         onClick = {
@@ -211,10 +226,10 @@ fun GameComponent(
                         modifier = Modifier
                             .size(90.dp, 40.dp)
                             .border(
-                            width = 2.dp,
-                            color = Color(0xFFFFD700), // Gold
-                            shape = MaterialTheme.shapes.medium
-                        ),
+                                width = 2.dp,
+                                color = Color(0xFFFFD700), // Gold
+                                shape = MaterialTheme.shapes.medium
+                            ),
                         colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors()
                     ) {
                         Text(
@@ -229,10 +244,10 @@ fun GameComponent(
                         modifier = Modifier
                             .size(90.dp, 40.dp)
                             .border(
-                            width = 2.dp,
-                            color = Color(0xFFFFD700), // Gold
-                            shape = MaterialTheme.shapes.medium
-                        ),
+                                width = 2.dp,
+                                color = Color(0xFFFFD700), // Gold
+                                shape = MaterialTheme.shapes.medium
+                            ),
                         colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors()
                     ) {
                         Text(
@@ -240,6 +255,7 @@ fun GameComponent(
                             color = Color.White
                         )
                     }
+
                 }
             }
         }
@@ -250,10 +266,10 @@ fun GameComponent(
                 deck.shuffle()
 
                 // Start the game
-                for(i in 0 until 4){
+                for (i in 0 until 4) {
                     if (i % 2 == 0) {
                         if (i == 0)
-                            // First cards is faceDown
+                        // First cards is faceDown
                             animationFaceDown = true
 
                         dealersKey++
@@ -264,7 +280,7 @@ fun GameComponent(
                     }
 
                     // Wait for animation to end
-                    while(inAnimation)
+                    while (inAnimation)
                         kotlinx.coroutines.delay(10)
                 }
 
