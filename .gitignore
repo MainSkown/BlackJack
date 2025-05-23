@@ -17,3 +17,5 @@ local.properties
 .kotlin/errors/
 
 .idea/codeStyles/
+
+.idea/

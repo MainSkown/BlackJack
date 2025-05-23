@@ -30,7 +30,6 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -48,13 +47,9 @@ import com.mainskown.blackjack.models.Deck
 import com.mainskown.blackjack.models.Card
 import com.mainskown.blackjack.models.CardSuit
 import com.mainskown.blackjack.models.DatabaseProvider
-import com.mainskown.blackjack.models.GameDao
-import com.mainskown.blackjack.models.GameData
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import kotlin.math.roundToInt
 
 enum class GameResult {
@@ -161,12 +156,6 @@ fun GameComponent(
                     )
                     Text(
                         text = stringResource(R.string.game_betting, bet),
-                        style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.padding(top = 8.dp)
-                    )
-                    // Debug cards amount
-                    Text(
-                        text = "Cards: ${deck.amountOfCards()}",
                         style = MaterialTheme.typography.bodyLarge,
                         modifier = Modifier.padding(top = 8.dp)
                     )
@@ -300,9 +289,7 @@ fun GameComponent(
                 // Check if the game was already started
                 val gameDao = DatabaseProvider.getDatabase(context).gameDao()
 
-                val gameData = withContext(Dispatchers.IO) {
-                    gameDao.getGameById(gameID)
-                }
+                val gameData = gameDao.getGameById(gameID)
                
                 gameDao.updateGameSeed(gameID, deck.shuffle(gameData?.deckSeed))
 
