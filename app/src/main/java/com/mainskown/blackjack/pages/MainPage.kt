@@ -87,7 +87,11 @@ class MainActivity : ComponentActivity() {
                                             startActivity(intent)
                                         }
 
-                                        1 -> { /* TODO: High score logic */
+                                        1 -> {
+                                            // Transition to HighScoresPage
+                                            val intent =
+                                                Intent(this@MainActivity, HighScoresPage::class.java)
+                                            startActivity(intent)
                                         }
 
                                         2 -> {
