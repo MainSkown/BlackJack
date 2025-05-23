@@ -151,24 +151,26 @@ class DatabaseProvider private constructor(context: Context) {
 
             // Update best chips value
             val bestChipsValue = gameDataList.maxOfOrNull { it.chipsValue } ?: 0
-            if (bestChipsValue > highScore!!.chipsValue) {
-                highScoresDao.updateBestChipsValue(bestChipsValue)
-            }
+            if(highScore != null) {
+                if (bestChipsValue > highScore.chipsValue) {
+                    highScoresDao.updateBestChipsValue(bestChipsValue)
+                }
 
-            // Update best bet value
-            val bestBetValue = gameDataList.maxOfOrNull { it.betValue } ?: 0
-            if (bestBetValue > highScore.betValue) {
-                highScoresDao.updateBestBetValue(bestBetValue)
-            }
+                // Update best bet value
+                val bestBetValue = gameDataList.maxOfOrNull { it.betValue } ?: 0
+                if (bestBetValue > highScore.betValue) {
+                    highScoresDao.updateBestBetValue(bestBetValue)
+                }
 
-            // Update best streak
-            // Count the longest winning streak
-            val longestStreak = gameDataList.fold(0 to 0) { (current, longest), game ->
-                if (game.result == GameResult.WIN) (current + 1) to maxOf(longest, current + 1)
-                else 0 to longest
-            }.second
-            if (longestStreak > highScore.streak) {
-                highScoresDao.updateBestStreak(longestStreak)
+                // Update best streak
+                // Count the longest winning streak
+                val longestStreak = gameDataList.fold(0 to 0) { (current, longest), game ->
+                    if (game.result == GameResult.WIN) (current + 1) to maxOf(longest, current + 1)
+                    else 0 to longest
+                }.second
+                if (longestStreak > highScore.streak) {
+                    highScoresDao.updateBestStreak(longestStreak)
+                }
             }
         }
     }

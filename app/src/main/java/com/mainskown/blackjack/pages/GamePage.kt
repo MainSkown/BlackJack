@@ -235,6 +235,8 @@ class GamePage : ComponentActivity() {
                                             // Handle invalid gameID case
                                             throw IllegalStateException("Invalid gameID: $gameID")
                                         }
+
+                                        DatabaseProvider.updateHighScores(this@GamePage)
                                     }
                                 },
                                 chips = chips,
