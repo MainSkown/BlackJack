@@ -1,6 +1,7 @@
 package com.mainskown.blackjack.models
 
 import android.content.Context
+import kotlin.random.Random
 
 class Deck (context: Context, style: CardStyle) {
     private val cards: MutableList<Card> = mutableListOf()
@@ -13,8 +14,16 @@ class Deck (context: Context, style: CardStyle) {
         }
     }
 
-    fun shuffle() {
-        cards.shuffle()
+    fun shuffle(seed: Long? = null): Long {
+        val finalSeed = if(seed == null){
+            // generate a random seed
+            val random = java.util.Random()
+            random.nextLong()
+        } else {
+            seed
+        }
+        cards.shuffle(Random(finalSeed))
+        return finalSeed
     }
 
     fun drawCard(): Card{
@@ -29,3 +38,5 @@ class Deck (context: Context, style: CardStyle) {
         return cards.size
     }
 }
+
+

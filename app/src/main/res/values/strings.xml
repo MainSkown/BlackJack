@@ -27,6 +27,18 @@
     </string-array>
     <string name="title_activity_settings_page">SettingsPage</string>
     <string name="title_activity_game_page">GamePage</string>
+    <string name="title_activity_high_scores_page">HighScoresPage</string>
+
+    <!-- High scores screen -->
+    <string name="high_scores_best_scores">Best Scores</string>
+    <string name="high_scores_best_chips">Most chips acquired: %1$d</string>
+    <string name="high_scores_best_bet">Biggest bet: %1$d</string>
+    <string name="high_scores_best_streak">Best Streak: %1$d</string>
+    <string name="high_scores_statistics">Statistics</string>
+    <string name="high_scores_wins">Games won: %1$d</string>
+    <string name="high_scores_losses">Games lost: %1$d</string>
+    <string name="high_scores_draws">Games drawn: %1$d</string>
+    <string name="high_scores_total_games">Games played: %1$d</string>
 
     <!-- Game screen -->
         <!-- Betting -->
