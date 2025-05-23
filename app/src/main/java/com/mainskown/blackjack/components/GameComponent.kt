@@ -30,6 +30,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,9 +47,14 @@ import com.mainskown.blackjack.models.CardStyle
 import com.mainskown.blackjack.models.Deck
 import com.mainskown.blackjack.models.Card
 import com.mainskown.blackjack.models.CardSuit
+import com.mainskown.blackjack.models.DatabaseProvider
+import com.mainskown.blackjack.models.GameDao
+import com.mainskown.blackjack.models.GameData
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlin.math.roundToInt
 
 enum class GameResult {
@@ -62,6 +68,7 @@ fun GameComponent(
     chips: Int,
     bet: Int,
     modifier: Modifier = Modifier,
+    gameID: Long,
 ) {
     val deck = remember { Deck(context, CardStyle.CLASSIC) }
     val dealerHand = remember { mutableStateListOf<Card>() }
@@ -154,6 +161,12 @@ fun GameComponent(
                     )
                     Text(
                         text = stringResource(R.string.game_betting, bet),
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
+                    // Debug cards amount
+                    Text(
+                        text = "Cards: ${deck.amountOfCards()}",
                         style = MaterialTheme.typography.bodyLarge,
                         modifier = Modifier.padding(top = 8.dp)
                     )
@@ -277,9 +290,21 @@ fun GameComponent(
         val playerCards = remember { mutableStateListOf<Card>() }
 
         // Trigger the animation when positions are ready
-        LaunchedEffect(deckPosition.value, dealerHandPosition.value, gameEnded) {
-            if (!gameEnded && deckPosition.value != Offset.Zero && dealerHandPosition.value != Offset.Zero && dealerHand.isEmpty()) {
-                deck.shuffle()
+        LaunchedEffect(Unit) {
+            // Wait until both positions are set
+            while (deckPosition.value == Offset.Zero || dealerHandPosition.value == Offset.Zero) {
+                kotlinx.coroutines.delay(10)
+            }
+
+            if (!gameStarted && dealerHand.isEmpty()) {
+                // Check if the game was already started
+                val gameDao = DatabaseProvider.getDatabase(context).gameDao()
+
+                val gameData = withContext(Dispatchers.IO) {
+                    gameDao.getGameById(gameID)
+                }
+               
+                gameDao.updateGameSeed(gameID, deck.shuffle(gameData?.deckSeed))
 
                 // Start the game
                 for (i in 0 until 4) {
@@ -294,10 +319,10 @@ fun GameComponent(
                         playersKey++
                         inAnimation = true
                     }
-
                     // Wait for animation to end
-                    while (inAnimation)
+                    while (inAnimation) {
                         kotlinx.coroutines.delay(10)
+                    }
                 }
 
                 // If dealer has blackjack, end the game
