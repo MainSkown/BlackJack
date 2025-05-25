@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
@@ -33,7 +34,11 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             BlackJackTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                Scaffold(
+                    modifier = Modifier.fillMaxSize(),
+                    containerColor = Color.Transparent, // Make Scaffold background transparent
+                    contentColor = MaterialTheme.colorScheme.onBackground
+                ){ innerPadding ->
                     Box(
                         modifier = Modifier
                             .fillMaxSize()

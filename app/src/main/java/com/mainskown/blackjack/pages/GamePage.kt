@@ -49,7 +49,11 @@ class GamePage : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             BlackJackTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                Scaffold(
+                    modifier = Modifier.fillMaxSize(),
+                    containerColor = Color.Transparent, // Make Scaffold background transparent
+                    contentColor = MaterialTheme.colorScheme.onBackground
+                ) { innerPadding ->
                     val scope = rememberCoroutineScope()
                     var chips by remember { mutableIntStateOf(100) }// Starting chips
                     var betAmount by remember { mutableIntStateOf(25) } // Initial bet amount

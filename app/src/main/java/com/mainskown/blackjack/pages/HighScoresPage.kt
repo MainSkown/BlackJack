@@ -36,7 +36,11 @@ class HighScoresPage : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             BlackJackTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                Scaffold(
+                    modifier = Modifier.fillMaxSize(),
+                    containerColor = Color.Transparent, // Make Scaffold background transparent
+                    contentColor = MaterialTheme.colorScheme.onBackground
+                ){ innerPadding ->
                     var highScores by remember { mutableStateOf(HighScores()) } // Placeholder for high scores
                     var gameDataList =
                         remember { mutableStateListOf<GameData>() } // Placeholder for game data

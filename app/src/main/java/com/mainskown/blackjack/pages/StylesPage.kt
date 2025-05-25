@@ -49,7 +49,11 @@ class StylesPage : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             BlackJackTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                Scaffold(
+                    modifier = Modifier.fillMaxSize(),
+                    containerColor = Color.Transparent, // Make Scaffold background transparent
+                    contentColor = MaterialTheme.colorScheme.onBackground
+                ) { innerPadding ->
                     val stylesPreferences = StylesPreferences(this.getSharedPreferences(getString(R.string.preferences_style_key), MODE_PRIVATE))
                     var selectedCardStyle by remember { mutableStateOf(stylesPreferences.cardStyle) }
                     var selectedBackgroundStyle by remember { mutableStateOf(stylesPreferences.backgroundStyle) }
@@ -149,6 +153,11 @@ class StylesPage : ComponentActivity() {
                                     onClick = {
                                         selectedBackgroundStyle = style
                                         stylesPreferences.backgroundStyle = style
+
+                                        // Force a recreation of the activity to see the background change immediately
+                                        val intent = intent
+                                        finish()
+                                        startActivity(intent)
                                     },
                                     modifier = Modifier
                                         .padding(top = 16.dp)

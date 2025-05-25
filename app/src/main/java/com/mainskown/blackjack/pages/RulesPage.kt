@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
@@ -37,7 +38,11 @@ class RulesPage : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             BlackJackTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                Scaffold(
+                    modifier = Modifier.fillMaxSize(),
+                    containerColor = Color.Transparent, // Make Scaffold background transparent
+                    contentColor = MaterialTheme.colorScheme.onBackground
+                ) { innerPadding ->
                     val rules: Array<String> = resources.getStringArray(R.array.rules_rules);
                     Column(
                         modifier = Modifier
