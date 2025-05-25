@@ -37,6 +37,7 @@ import com.smarttoolfactory.slider.ColorfulIconSlider
 import com.smarttoolfactory.slider.MaterialSliderDefaults
 import com.smarttoolfactory.slider.SliderBrushColor
 import androidx.core.content.edit
+import com.mainskown.blackjack.components.OutlinedText
 
 class SettingsPage : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -60,16 +61,14 @@ class SettingsPage : ComponentActivity() {
                         verticalArrangement = Arrangement.Center
                     ) {
                         // Main Title
-                        Text(
+                        OutlinedText(
                             text = getString(R.string.app_name),
-                            style = androidx.compose.material3.MaterialTheme.typography.titleLarge,
-                            color = Color(0xFFFFFFFF),
+                            style = MaterialTheme.typography.titleLarge,
                         )
                         // Subtitle (Settings)
-                        Text(
+                        OutlinedText(
                             text = getString(R.string.settings_title),
-                            style = androidx.compose.material3.MaterialTheme.typography.titleMedium,
-                            color = Color(0xFFFFFFFF),
+                            style = MaterialTheme.typography.titleMedium,
                             modifier = Modifier.padding(bottom = 35.dp)
                         )
 
@@ -80,9 +79,8 @@ class SettingsPage : ComponentActivity() {
                             verticalArrangement = Arrangement.Center
                         ) {
                             // Title
-                            Text(
+                            OutlinedText(
                                 text = getString(R.string.settings_sound_volume),
-                                color = Color(0xFFFFFFFF),
                             )
                             // Slider
                             ColorfulIconSlider(
@@ -116,9 +114,8 @@ class SettingsPage : ComponentActivity() {
                             verticalArrangement = Arrangement.Center
                         ) {
                             // Title
-                            Text(
+                            OutlinedText(
                                 text = getString(R.string.settings_music_volume),
-                                color = Color(0xFFFFFFFF),
                             )
                             // Slider
                             ColorfulIconSlider(
@@ -161,9 +158,8 @@ class SettingsPage : ComponentActivity() {
                                     uncheckedColor = Color(0xFFFFFFFF)
                                 )
                             )
-                            Text(
+                            OutlinedText(
                                 text = getString(R.string.settings_skip_intro),
-                                color = Color(0xFFFFFFFF),
                             )
                         }
 

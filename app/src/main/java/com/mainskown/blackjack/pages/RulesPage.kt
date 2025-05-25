@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import com.mainskown.blackjack.R
 
 import com.mainskown.blackjack.components.CardButtonHand
+import com.mainskown.blackjack.components.OutlinedText
 
 class RulesPage : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,31 +55,21 @@ class RulesPage : ComponentActivity() {
                         verticalArrangement = Arrangement.Center
                     ) {
                         // Main Title
-                        Text(
+                        OutlinedText(
                             text = getString(R.string.app_name),
-                            style = androidx.compose.material3.MaterialTheme.typography.titleLarge,
-                            color = Color(0xFFFFFFFF),
+                            style = MaterialTheme.typography.titleLarge,
                         )
                         // Subtitle (Rules)
-                        Text(
+                        OutlinedText(
                             text = getString(R.string.rules_title),
-                            style = androidx.compose.material3.MaterialTheme.typography.titleMedium,
-                            color = Color(0xFFFFFFFF),
+                            style = MaterialTheme.typography.titleMedium,
                             modifier = Modifier.padding(bottom = 35.dp)
                         )
                         // Rules from array
                         for (i in rules.indices) {
-                            Text(
-                                text = buildAnnotatedString {
-                                    // Append the rule number with bold style
-                                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                        append((i + 1).toString() + ". ")
-                                    }
-                                    // Append the rule text
-                                    append(rules[i])
-                                },
-                                style = androidx.compose.material3.MaterialTheme.typography.bodyLarge,
-                                color = Color(0xFFFFFFFF),
+                            OutlinedText(
+                                text = "${i + 1}. ${rules[i]}",
+                                style = MaterialTheme.typography.bodyLarge,
                                 textAlign = TextAlign.Center
                             )
                             if (i < rules.size - 1) {

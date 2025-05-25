@@ -29,6 +29,7 @@ import com.mainskown.blackjack.models.GameData
 import com.mainskown.blackjack.models.HighScores
 import com.mainskown.blackjack.ui.theme.BlackJackTheme
 import com.mainskown.blackjack.R
+import com.mainskown.blackjack.components.OutlinedText
 
 class HighScoresPage : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -63,65 +64,57 @@ class HighScoresPage : ComponentActivity() {
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         // Main Title
-                        Text(
+                        OutlinedText(
                             text = getString(R.string.app_name),
                             style = MaterialTheme.typography.titleLarge,
-                            color = Color(0xFFFFFFFF),
                         )
                         // High Scores
-                        Text(
+                        OutlinedText(
                             text = getString(R.string.high_scores_best_scores),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.padding(top=20.dp, bottom = 20.dp)
                         )
-                        Text(
+                        OutlinedText(
                             text = getString(R.string.high_scores_best_chips, highScores.chipsValue),
                             style = MaterialTheme.typography.titleSmall,
-                            color = Color(0xFFFFFFFF),
                             modifier = Modifier.padding(bottom = 10.dp)
                         )
-                        Text(
+                        OutlinedText(
                             text = getString(R.string.high_scores_best_bet, highScores.betValue),
                             style = MaterialTheme.typography.titleSmall,
-                            color = Color(0xFFFFFFFF),
                             modifier = Modifier.padding(bottom = 10.dp)
                         )
-                        Text(
+                        OutlinedText(
                             text = getString(R.string.high_scores_best_streak, highScores.streak),
                             style = MaterialTheme.typography.titleSmall,
-                            color = Color(0xFFFFFFFF),
                         )
 
                         // Statistics
-                        Text(
+                        OutlinedText(
                             text = getString(R.string.high_scores_statistics),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.padding(top=20.dp, bottom = 20.dp)
                         )
-                        Text(
+                        OutlinedText(
                             text = getString(R.string.high_scores_total_games, gameDataList.size),
                             style = MaterialTheme.typography.titleSmall,
-                            color = Color(0xFFFFFFFF),
                             modifier = Modifier.padding(bottom = 10.dp)
                         )
-                        Text(
+                        OutlinedText(
                             text = getString(R.string.high_scores_wins, gameDataList.count { it.result == GameResult.WIN  }),
                             style = MaterialTheme.typography.titleSmall,
-                            color = Color(0xFFFFFFFF),
                             modifier = Modifier.padding(bottom = 10.dp)
                         )
-                        Text(
+                        OutlinedText(
                             text = getString(R.string.high_scores_losses, gameDataList.count { it.result == GameResult.LOSE }),
                             style = MaterialTheme.typography.titleSmall,
-                            color = Color(0xFFFFFFFF),
                             modifier = Modifier.padding(bottom = 10.dp)
                         )
-                        Text(
+                        OutlinedText(
                             text = getString(R.string.high_scores_draws, gameDataList.count { it.result == GameResult.DRAW }),
                             style = MaterialTheme.typography.titleSmall,
-                            color = Color(0xFFFFFFFF),
                             modifier = Modifier.padding(bottom = 10.dp)
                         )
                     }

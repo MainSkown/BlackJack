@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import com.mainskown.blackjack.R
 
 import com.mainskown.blackjack.components.CardButtonHand
+import com.mainskown.blackjack.components.OutlinedText
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -75,10 +76,9 @@ class MainActivity : ComponentActivity() {
                             verticalArrangement = Arrangement.Center
                         ) {
                             // Main Title
-                            Text(
-                                text = "BlackJack",
-                                style = androidx.compose.material3.MaterialTheme.typography.titleLarge,
-                                color = Color(0xFFFFFFFF),
+                            OutlinedText(
+                                text = getString(R.string.app_name),
+                                style = MaterialTheme.typography.titleLarge,
                                 modifier = Modifier.padding(bottom = 50.dp)
                             )
 
@@ -124,9 +124,8 @@ class MainActivity : ComponentActivity() {
                                     .align(Alignment.CenterHorizontally),
                                 border = BorderStroke(1.dp, Color(0xFFFFFFFF)) // Gold color border
                             ) {
-                                Text(
+                                OutlinedText(
                                     text = "Customize",
-                                    color = Color(0xFFFFFFFF),
                                     modifier = Modifier.padding(8.dp)
                                 )
                             }

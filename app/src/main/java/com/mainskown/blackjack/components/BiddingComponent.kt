@@ -48,7 +48,7 @@ fun BiddingComponent(
     modifier: Modifier = Modifier,
     chips: Int,
     onBetSelected: (Int) -> Unit,
-    ) {
+) {
     var betAmount by remember { mutableIntStateOf(0) }
 
     Box(
@@ -62,14 +62,10 @@ fun BiddingComponent(
         )
         {
             // Display amount of chips
-            Text(
+            OutlinedText(
                 text = stringResource(R.string.app_name),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-            )
-            Text(
-                text = stringResource(R.string.game_chips, chips),
-                style = MaterialTheme.typography.titleMedium,
             )
         }
     }
@@ -80,13 +76,24 @@ fun BiddingComponent(
             .padding(start = 20.dp, end = 20.dp),
         contentAlignment = Alignment.CenterEnd
     ) {
-        Text(
-            text = stringResource(R.string.game_betting, betAmount),
-            style = MaterialTheme.typography.bodyLarge,
-            fontSize = 30.sp,
+        Column(
             modifier = Modifier
-                .align(Alignment.CenterStart)
-        )
+                .padding(top = 50.dp, bottom = 50.dp)
+                .align(Alignment.CenterStart),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            OutlinedText(
+                text = stringResource(R.string.game_chips, chips),
+                style = MaterialTheme.typography.bodyLarge,
+                fontSize = 30.sp,
+            )
+            OutlinedText(
+                text = stringResource(R.string.game_betting, betAmount),
+                style = MaterialTheme.typography.bodyLarge,
+                fontSize = 30.sp,
+            )
+        }
         BettingVerticalSlider(
             modifier = Modifier,
             onBetSelected = { bet ->
@@ -116,11 +123,10 @@ fun BiddingComponent(
             ),
             border = BorderStroke(1.dp, Color.White)
         ) {
-            Text(
+            OutlinedText(
                 text = "Place Bet",
                 style = MaterialTheme.typography.titleMedium,
                 fontSize = 20.sp,
-                color = Color.White
             )
         }
     }
@@ -155,7 +161,7 @@ fun BettingVerticalSlider(
             horizontalAlignment = Alignment.End
         ) {
             labels.reversed().forEach { label ->
-                Text(
+                OutlinedText(
                     text = label,
                     style = MaterialTheme.typography.bodyMedium,
                     textAlign = TextAlign.End,
