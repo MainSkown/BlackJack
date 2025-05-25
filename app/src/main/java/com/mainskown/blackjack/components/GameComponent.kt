@@ -42,11 +42,11 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.mainskown.blackjack.R
-import com.mainskown.blackjack.models.CardStyle
 import com.mainskown.blackjack.models.Deck
 import com.mainskown.blackjack.models.Card
 import com.mainskown.blackjack.models.CardSuit
 import com.mainskown.blackjack.models.DatabaseProvider
+import com.mainskown.blackjack.pages.StylesPreferences
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
@@ -65,7 +65,9 @@ fun GameComponent(
     modifier: Modifier = Modifier,
     gameID: Long,
 ) {
-    val deck = remember { Deck(context, CardStyle.CLASSIC) }
+    val stylesPreferences = StylesPreferences(context.getSharedPreferences(stringResource(R.string.preferences_style_key), Context.MODE_PRIVATE))
+
+    val deck = remember { Deck(context, stylesPreferences.cardStyle) }
     val dealerHand = remember { mutableStateListOf<Card>() }
     val playerHand = remember { mutableStateListOf<Card>() }
 
@@ -102,14 +104,15 @@ fun GameComponent(
         )
         {
             // Display amount of chips
-            Text(
+            OutlinedText(
                 text = stringResource(R.string.app_name),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
             )
 
-            Text(
+            OutlinedText(
                 text = stringResource(R.string.game_dealer_hand),
+                style = MaterialTheme.typography.bodyLarge,
             )
 
             // Template for dealer's hand
@@ -132,8 +135,9 @@ fun GameComponent(
                 )
             }
 
-            Text(
+            OutlinedText(
                 text = stringResource(R.string.game_dealer_value, calcValue(dealerHand.toTypedArray())),
+                style = MaterialTheme.typography.bodyLarge,
             )
 
 
@@ -150,11 +154,11 @@ fun GameComponent(
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.Start
                 ) {
-                    Text(
+                    OutlinedText(
                         text = stringResource(R.string.game_chips, animatedChips),
                         style = MaterialTheme.typography.bodyLarge,
                     )
-                    Text(
+                    OutlinedText(
                         text = stringResource(R.string.game_betting, bet),
                         style = MaterialTheme.typography.bodyLarge,
                         modifier = Modifier.padding(top = 8.dp)
@@ -174,13 +178,14 @@ fun GameComponent(
                             suit = CardSuit.DIAMONDS,
                             value = 1,
                             isFaceUp = false,
+                            style = stylesPreferences.cardStyle
                         ),
                         size = 130.dp,
                         positionRead = { offset ->
                             deckPosition.value = offset
                         }
                     )
-                    Text(
+                    OutlinedText(
                         text = stringResource(R.string.game_deck),
                         modifier = Modifier
                             .rotate(-90f)
@@ -203,8 +208,9 @@ fun GameComponent(
                     playerHandPosition.value = offset
                 }
             )
-            Text(
+            OutlinedText(
                 text = stringResource(R.string.game_value, calcValue(playerHand.toTypedArray())),
+                style = MaterialTheme.typography.bodyLarge,
             )
 
 
@@ -242,9 +248,8 @@ fun GameComponent(
                             ),
                         colors = ButtonDefaults.outlinedButtonColors()
                     ) {
-                        Text(
+                        OutlinedText(
                             text = stringResource(R.string.game_hit),
-                            color = Color.White
                         )
                     }
 
@@ -262,9 +267,8 @@ fun GameComponent(
                             ),
                         colors = ButtonDefaults.outlinedButtonColors()
                     ) {
-                        Text(
+                        OutlinedText(
                             text = stringResource(R.string.game_hold),
-                            color = Color.White
                         )
                     }
 
@@ -290,7 +294,7 @@ fun GameComponent(
                 val gameDao = DatabaseProvider.getDatabase(context).gameDao()
 
                 val gameData = gameDao.getGameById(gameID)
-               
+
                 gameDao.updateGameSeed(gameID, deck.shuffle(gameData?.deckSeed))
 
                 // Start the game

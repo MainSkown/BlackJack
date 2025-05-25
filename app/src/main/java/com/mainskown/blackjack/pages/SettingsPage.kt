@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -36,6 +37,7 @@ import com.smarttoolfactory.slider.ColorfulIconSlider
 import com.smarttoolfactory.slider.MaterialSliderDefaults
 import com.smarttoolfactory.slider.SliderBrushColor
 import androidx.core.content.edit
+import com.mainskown.blackjack.components.OutlinedText
 
 class SettingsPage : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,7 +48,11 @@ class SettingsPage : ComponentActivity() {
 
         setContent {
             BlackJackTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                Scaffold(
+                    modifier = Modifier.fillMaxSize(),
+                    containerColor = Color.Transparent, // Make Scaffold background transparent
+                    contentColor = MaterialTheme.colorScheme.onBackground
+                ) { innerPadding ->
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
@@ -55,16 +61,14 @@ class SettingsPage : ComponentActivity() {
                         verticalArrangement = Arrangement.Center
                     ) {
                         // Main Title
-                        Text(
+                        OutlinedText(
                             text = getString(R.string.app_name),
-                            style = androidx.compose.material3.MaterialTheme.typography.titleLarge,
-                            color = Color(0xFFFFFFFF),
+                            style = MaterialTheme.typography.titleLarge,
                         )
                         // Subtitle (Settings)
-                        Text(
+                        OutlinedText(
                             text = getString(R.string.settings_title),
-                            style = androidx.compose.material3.MaterialTheme.typography.titleMedium,
-                            color = Color(0xFFFFFFFF),
+                            style = MaterialTheme.typography.titleMedium,
                             modifier = Modifier.padding(bottom = 35.dp)
                         )
 
@@ -75,9 +79,8 @@ class SettingsPage : ComponentActivity() {
                             verticalArrangement = Arrangement.Center
                         ) {
                             // Title
-                            Text(
+                            OutlinedText(
                                 text = getString(R.string.settings_sound_volume),
-                                color = Color(0xFFFFFFFF),
                             )
                             // Slider
                             ColorfulIconSlider(
@@ -111,9 +114,8 @@ class SettingsPage : ComponentActivity() {
                             verticalArrangement = Arrangement.Center
                         ) {
                             // Title
-                            Text(
+                            OutlinedText(
                                 text = getString(R.string.settings_music_volume),
-                                color = Color(0xFFFFFFFF),
                             )
                             // Slider
                             ColorfulIconSlider(
@@ -156,9 +158,8 @@ class SettingsPage : ComponentActivity() {
                                     uncheckedColor = Color(0xFFFFFFFF)
                                 )
                             )
-                            Text(
+                            OutlinedText(
                                 text = getString(R.string.settings_skip_intro),
-                                color = Color(0xFFFFFFFF),
                             )
                         }
 

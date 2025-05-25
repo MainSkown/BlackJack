@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -17,6 +18,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -24,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import com.mainskown.blackjack.R
 
 import com.mainskown.blackjack.components.CardButtonHand
+import com.mainskown.blackjack.components.OutlinedText
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,7 +35,11 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             BlackJackTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                Scaffold(
+                    modifier = Modifier.fillMaxSize(),
+                    containerColor = Color.Transparent, // Make Scaffold background transparent
+                    contentColor = MaterialTheme.colorScheme.onBackground
+                ){ innerPadding ->
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
@@ -68,16 +76,15 @@ class MainActivity : ComponentActivity() {
                             verticalArrangement = Arrangement.Center
                         ) {
                             // Main Title
-                            Text(
-                                text = "BlackJack",
-                                style = androidx.compose.material3.MaterialTheme.typography.titleLarge,
-                                color = Color(0xFFFFFFFF),
+                            OutlinedText(
+                                text = getString(R.string.app_name),
+                                style = MaterialTheme.typography.titleLarge,
                                 modifier = Modifier.padding(bottom = 50.dp)
                             )
 
                             // Cards
                             CardButtonHand(
-                                cards = listOf("Start", "High Score", "Rules"),
+                                cards = resources.getStringArray(R.array.main_menu_options).toList(),
                                 onCardClick = { index ->
                                     when (index) {
                                         0 -> {
@@ -103,6 +110,25 @@ class MainActivity : ComponentActivity() {
                                     }
                                 },
                             )
+
+                            // Customization button
+                            OutlinedButton(
+                                onClick = {
+                                    // Transition to StylesPage
+                                    val intent =
+                                        Intent(this@MainActivity, StylesPage::class.java)
+                                    startActivity(intent)
+                                },
+                                modifier = Modifier
+                                    .padding(top = 30.dp)
+                                    .align(Alignment.CenterHorizontally),
+                                border = BorderStroke(1.dp, Color(0xFFFFFFFF)) // Gold color border
+                            ) {
+                                OutlinedText(
+                                    text = getString(R.string.main_menu_customize),
+                                    modifier = Modifier.padding(8.dp)
+                                )
+                            }
                         }
                     }
                 }

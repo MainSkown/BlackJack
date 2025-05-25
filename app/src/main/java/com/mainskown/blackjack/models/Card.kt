@@ -29,19 +29,6 @@ enum class CardSuit {
     }
 }
 
-enum class CardStyle {
-    CLASSIC {
-        override fun toString(): String {
-            return "Classic";
-        }
-    },
-    MODERN {
-        override fun toString(): String {
-            return "Modern";
-        }
-    },
-}
-
 class Card(
     val context: Context,
     val value: Int,
