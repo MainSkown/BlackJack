@@ -1,6 +1,12 @@
 <resources>
     <!-- Main screen -->
     <string name="app_name">BlackJack</string>
+    <string-array name="main_menu_options">
+        <item>Start</item>
+        <item>High Score</item>
+        <item>Rules</item>
+    </string-array>
+    <string name="main_menu_customize">Customize</string>
 
     <!-- Settings screen -->
     <string name="settings_title">Settings</string>
@@ -69,4 +75,13 @@
 
     <!-- Styles screen -->
     <string name="preferences_style_key">StylePreferences</string>
+    <string name="styles_card_styles">Card Styles</string>
+    <string name="styles_card_classic">Classic</string>
+    <string name="styles_card_modern">Modern</string>
+    <string name="styles_background_styles">Background Styles</string>
+    <string name="styles_background_red">Red</string>
+    <string name="styles_background_blue">Blue</string>
+    <string name="styles_background_green">Green</string>
+    <string name="styles_background_cat">Cat</string>
+    <string name="styles_background_ace_cat">Ace cat</string>
 </resources>

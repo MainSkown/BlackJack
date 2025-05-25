@@ -42,6 +42,7 @@ import com.mainskown.blackjack.models.CardStyle
 import com.mainskown.blackjack.models.CardSuit
 import com.mainskown.blackjack.ui.theme.BlackJackTheme
 import androidx.compose.material3.ButtonDefaults
+import com.mainskown.blackjack.components.OutlinedText
 
 class StylesPage : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -65,7 +66,7 @@ class StylesPage : ComponentActivity() {
                         .padding(top=20.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
-                        Text(
+                        OutlinedText(
                             text = stringResource(R.string.app_name),
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold,
@@ -79,8 +80,8 @@ class StylesPage : ComponentActivity() {
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             // Card Style Selection
-                            Text(
-                                text = "Card Styles",
+                            OutlinedText(
+                                text = getString(R.string.styles_card_styles),
                                 style = MaterialTheme.typography.titleMedium
                             )
                             CardStyle.entries.forEach { style ->
@@ -128,12 +129,17 @@ class StylesPage : ComponentActivity() {
                                             DisplayCard(card = cardUp, size = 130.dp)
                                             DisplayCard(card = cardDown, size = 130.dp)
                                         }
-                                        Text(
-                                            text = style.name,
+                                        OutlinedText(
+                                            text = stringResource(
+                                                id = context.resources.getIdentifier(
+                                                    "styles_card_${style.name.lowercase()}",
+                                                    "string",
+                                                    context.packageName
+                                                ),
+                                            ),
                                             style = MaterialTheme.typography.bodyLarge,
                                             textAlign = TextAlign.Center,
                                             modifier = Modifier.padding(top = 8.dp),
-                                            color = Color.White,
                                             fontWeight = FontWeight.Bold
                                         )
                                     }
@@ -141,8 +147,8 @@ class StylesPage : ComponentActivity() {
                             }
 
                             // Background Style Selection
-                            Text(
-                                text = "Background Styles",
+                            OutlinedText(
+                                text = getString(R.string.styles_background_styles),
                                 style = MaterialTheme.typography.titleMedium,
                                 textAlign = TextAlign.Center,
                                 modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
@@ -188,13 +194,18 @@ class StylesPage : ComponentActivity() {
                                                 modifier = Modifier.fillMaxSize()
                                             )
                                         }
-                                        Text(
-                                            text = style.name,
+                                        OutlinedText(
+                                            text = stringResource(
+                                                id = context.resources.getIdentifier(
+                                                    "styles_background_${style.name.lowercase()}",
+                                                    "string",
+                                                    context.packageName
+                                                ),
+                                            ),
                                             style = MaterialTheme.typography.bodyLarge,
                                             textAlign = TextAlign.Center,
                                             modifier = Modifier
                                                 .padding(8.dp),
-                                            color = Color.White,
                                             fontWeight = FontWeight.Bold
                                         )
                                     }

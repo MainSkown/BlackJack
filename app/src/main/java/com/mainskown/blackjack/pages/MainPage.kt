@@ -84,7 +84,7 @@ class MainActivity : ComponentActivity() {
 
                             // Cards
                             CardButtonHand(
-                                cards = listOf("Start", "High Score", "Rules"),
+                                cards = resources.getStringArray(R.array.main_menu_options).toList(),
                                 onCardClick = { index ->
                                     when (index) {
                                         0 -> {
@@ -125,7 +125,7 @@ class MainActivity : ComponentActivity() {
                                 border = BorderStroke(1.dp, Color(0xFFFFFFFF)) // Gold color border
                             ) {
                                 OutlinedText(
-                                    text = "Customize",
+                                    text = getString(R.string.main_menu_customize),
                                     modifier = Modifier.padding(8.dp)
                                 )
                             }
