@@ -14,29 +14,9 @@ enum class CardStyle {
 }
 
 enum class BackgroundStyle {
-    RED {
-        override fun toString(): String {
-            return "red";
-        }
-    },
-    BLUE {
-        override fun toString(): String {
-            return "blue";
-        }
-    },
-    GREEN {
-        override fun toString(): String {
-            return "green";
-        }
-    },
-    CAT {
-        override fun toString(): String {
-            return "cat";
-        }
-    },
-    ACE_CAT {
-        override fun toString(): String {
-            return "ace_cat";
-        }
-    },
+    RED,
+    BLUE,
+    GREEN,
+    CAT,
+    ACE_CAT
 }

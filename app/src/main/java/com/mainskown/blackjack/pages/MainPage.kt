@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -103,6 +105,26 @@ class MainActivity : ComponentActivity() {
                                     }
                                 },
                             )
+
+                            // Customization button
+                            OutlinedButton(
+                                onClick = {
+                                    // Transition to StylesPage
+                                    val intent =
+                                        Intent(this@MainActivity, StylesPage::class.java)
+                                    startActivity(intent)
+                                },
+                                modifier = Modifier
+                                    .padding(top = 30.dp)
+                                    .align(Alignment.CenterHorizontally),
+                                border = BorderStroke(1.dp, Color(0xFFFFFFFF)) // Gold color border
+                            ) {
+                                Text(
+                                    text = "Customize",
+                                    color = Color(0xFFFFFFFF),
+                                    modifier = Modifier.padding(8.dp)
+                                )
+                            }
                         }
                     }
                 }
