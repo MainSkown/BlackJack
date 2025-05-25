@@ -153,11 +153,6 @@ class StylesPage : ComponentActivity() {
                                     onClick = {
                                         selectedBackgroundStyle = style
                                         stylesPreferences.backgroundStyle = style
-
-                                        // Force a recreation of the activity to see the background change immediately
-                                        val intent = intent
-                                        finish()
-                                        startActivity(intent)
                                     },
                                     modifier = Modifier
                                         .padding(top = 16.dp)

@@ -3,6 +3,7 @@ package com.mainskown.blackjack.ui.theme
 import android.content.Context
 import android.os.Build
 import android.util.Log
+import android.content.SharedPreferences
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
@@ -14,11 +15,13 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import com.mainskown.blackjack.R
+import com.mainskown.blackjack.models.BackgroundStyle
 import com.mainskown.blackjack.pages.StylesPreferences
 
 private val DarkColorScheme = darkColorScheme(
@@ -63,11 +66,37 @@ fun BackgroundWrapper(content: @Composable () -> Unit) {
 
     // Load the background image directly
     val preferencesKey = context.getString(R.string.preferences_style_key)
-    val stylesPreferences = StylesPreferences(context.getSharedPreferences(preferencesKey, Context.MODE_PRIVATE))
-    val backgroundStyle = stylesPreferences.backgroundStyle
+    val sharedPrefs = context.getSharedPreferences(preferencesKey, Context.MODE_PRIVATE)
 
-    // Log information for debugging
-    Log.d("BlackJackTheme", "Loading background style: ${backgroundStyle.name}")
+    // Use a remember with a unique key for each style to force recomposition when style changes
+    val currentStyle = remember(Unit) {
+        androidx.compose.runtime.mutableStateOf(
+            sharedPrefs.getString("background_style", BackgroundStyle.entries.first().name) ?: BackgroundStyle.entries.first().name
+        )
+    }
+
+    // Add a PreferenceChangeListener to detect changes when coming back to this screen
+    DisposableEffect(Unit) {
+        val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+            if (key == "background_style") {
+                val newStyle = sharedPrefs.getString(key, BackgroundStyle.entries.first().name)
+                    ?: BackgroundStyle.entries.first().name
+                currentStyle.value = newStyle
+            }
+        }
+
+        // Register the listener
+        sharedPrefs.registerOnSharedPreferenceChangeListener(listener)
+
+        // Clean up when leaving the composition
+        onDispose {
+            sharedPrefs.unregisterOnSharedPreferenceChangeListener(listener)
+        }
+    }
+
+    // Parse the background style from the saved preference
+    val backgroundStyle = BackgroundStyle.valueOf(currentStyle.value)
+    Log.d("BlackJackTheme", "Using background style: ${backgroundStyle.name}")
 
     // Load the background bitmap
     val backgroundBitmap = loadBackgroundBitmap(context, backgroundStyle.name.lowercase())
@@ -79,19 +108,12 @@ fun BackgroundWrapper(content: @Composable () -> Unit) {
                 bitmap = bitmap.asImageBitmap(),
                 contentDescription = "Background",
                 modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop // This ensures the image fills the entire screen
+                contentScale = ContentScale.Crop
             )
         }
 
         // Render the content on top of the background
         content()
-    }
-
-    // Cleanup resources when the composable leaves composition
-    DisposableEffect(Unit) {
-        onDispose {
-            // Clean up resources if needed
-        }
     }
 }
 
