@@ -47,6 +47,7 @@ import com.mainskown.blackjack.models.Deck
 import com.mainskown.blackjack.models.Card
 import com.mainskown.blackjack.models.CardSuit
 import com.mainskown.blackjack.models.DatabaseProvider
+import com.mainskown.blackjack.pages.StylesPreferences
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
@@ -65,7 +66,9 @@ fun GameComponent(
     modifier: Modifier = Modifier,
     gameID: Long,
 ) {
-    val deck = remember { Deck(context, CardStyle.CLASSIC) }
+    val stylesPreferences = StylesPreferences(context.getSharedPreferences(stringResource(R.string.preferences_style_key), Context.MODE_PRIVATE))
+
+    val deck = remember { Deck(context, stylesPreferences.cardStyle) }
     val dealerHand = remember { mutableStateListOf<Card>() }
     val playerHand = remember { mutableStateListOf<Card>() }
 
@@ -174,6 +177,7 @@ fun GameComponent(
                             suit = CardSuit.DIAMONDS,
                             value = 1,
                             isFaceUp = false,
+                            style = stylesPreferences.cardStyle
                         ),
                         size = 130.dp,
                         positionRead = { offset ->
