@@ -14,7 +14,7 @@ package com.mainskown.blackjack.components
     fun CardButtonHand(
         cards: List<String>,
         onCardClick: (Int) -> Unit,
-        cardSize: Dp = 120.dp,
+        cardSize: Dp = 170.dp,
         rotateStep: Float = 10f,
         arcRadius: Dp = 600.dp
     ) {
@@ -48,7 +48,12 @@ package com.mainskown.blackjack.components
                         .offset(x = x_dp, y = y_dp)
                         .rotate(angle),
                     size = cardSize,
-                    outline = true
+                    cardSymbol = when (reversedIndex){
+                        0 -> "♦"
+                        1 -> "♠"
+                        2 -> "♥"
+                        else -> "♠"
+                    }
                 )
             }
         }
