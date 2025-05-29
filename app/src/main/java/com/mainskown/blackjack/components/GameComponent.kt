@@ -342,7 +342,6 @@ fun GameComponent(
                     }
 
                     playerFinished = true
-
                 }
             }
         }
@@ -365,7 +364,8 @@ fun GameComponent(
 
                 val playersValue = calcValue(playerHand.toTypedArray())
 
-                if(playersValue != 21)
+                // Dealer's turn: keep drawing cards until dealer's value is greater than or equal to player's value
+                if(playersValue != 21 || playerHand.size != 2)
                     while (calcValue(dealerHand.toTypedArray()) < playersValue) {
                         dealersKey++
                         inAnimation = true
