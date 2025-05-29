@@ -84,4 +84,5 @@
     <string name="styles_background_green">Green</string>
     <string name="styles_background_cat">Cat</string>
     <string name="styles_background_ace_cat">Ace cat</string>
+    <string name="title_activity_intro_page">IntroPage</string>
 </resources>
