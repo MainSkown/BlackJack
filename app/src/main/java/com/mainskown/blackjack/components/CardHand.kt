@@ -10,6 +10,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.layout.positionOnScreen
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -28,6 +29,20 @@ fun displayCardHand(
     globalPositionRead: ((Offset) -> Unit)? = null
 ) {
     val density = LocalDensity.current
+    val configuration = LocalConfiguration.current
+    val screenWidthDp = configuration.screenWidthDp.dp
+    val maxHandWidth = screenWidthDp * 0.95f // 95% of screen width
+    val cardWidthPx = with(density) { cardSize.toPx() * 0.7f } // 0.7: overlap factor
+    val maxCardsWidth = cardWidthPx * (cards.size - 1) + with(density) { cardSize.toPx() }
+
+    // Dynamically adjust rotateStep if overflowing
+    val dynamicRotateStep = if (maxCardsWidth > with(density) { maxHandWidth.toPx() }) {
+        // Reduce rotateStep proportionally
+        rotateStep * (with(density) { maxHandWidth.toPx() } / maxCardsWidth)
+    } else {
+        rotateStep
+    }
+
     val arcRadiusPx = with(density) { arcRadius.toPx() }
 
     Box(
@@ -44,13 +59,13 @@ fun displayCardHand(
             size = cardSize
         )
 
-        val totalAngle = (cards.size - 1) * rotateStep
+        val totalAngle = (cards.size - 1) * dynamicRotateStep
         val startAngle = -totalAngle / 2
 
         // Reverse card order, so the left one is on top
         cards.asReversed().forEachIndexed { reversedIndex, card ->
             val index = cards.size - 1 - reversedIndex
-            val angle = startAngle + (index * rotateStep)
+            val angle = startAngle + (index * dynamicRotateStep)
             val angleRad = Math.toRadians(angle.toDouble())
 
             // Calculate the x and y positions based on the angle
