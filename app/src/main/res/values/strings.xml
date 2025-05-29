@@ -1,4 +1,7 @@
 <resources>
+    <!-- Keys -->
+    <string name="preferences_style_key">StylePreferences</string>
+    <string name="preferences_settings_key">SettingsPreferences</string>
     <!-- Main screen -->
     <string name="app_name">BlackJack</string>
     <string-array name="main_menu_options">
@@ -74,7 +77,6 @@
     <string name="title_activity_styles_page">StylesPage</string>
 
     <!-- Styles screen -->
-    <string name="preferences_style_key">StylePreferences</string>
     <string name="styles_card_styles">Card Styles</string>
     <string name="styles_card_classic">Classic</string>
     <string name="styles_card_modern">Modern</string>
@@ -84,4 +86,5 @@
     <string name="styles_background_green">Green</string>
     <string name="styles_background_cat">Cat</string>
     <string name="styles_background_ace_cat">Ace cat</string>
+    <string name="title_activity_intro_page">IntroPage</string>
 </resources>
