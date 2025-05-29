@@ -15,7 +15,7 @@
         <activity
             android:name=".pages.IntroPage"
             android:exported="true"
-            android:label="@string/title_activity_intro_page"
+            android:label="@string/app_name"
             android:theme="@style/Theme.BlackJack" >
         <intent-filter>
             <action android:name="android.intent.action.MAIN" />

@@ -58,8 +58,8 @@ class IntroPage : ComponentActivity() {
             BlackJackTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     // Load settings
-                    val settingsPreferences = SettingsPreferences(this.getPreferences(MODE_PRIVATE))
-
+                    val settingsPreferences = SettingsPreferences(this.getSharedPreferences(getString(R.string.preferences_settings_key), MODE_PRIVATE))
+                    var startIntro by remember { mutableStateOf(false) }
                     // States for controlling the transition animations
                     var isVideoFinished by remember { mutableStateOf(false) }
                     var showTitle by remember { mutableStateOf(false) }
@@ -97,7 +97,8 @@ class IntroPage : ComponentActivity() {
                         if(settingsPreferences.skipIntro) {
                             startActivity(Intent(this@IntroPage, MainActivity::class.java))
                             finish()
-                        }
+                        } else
+                            startIntro = true
                     }
 
                     // Handle the transition sequence
@@ -117,6 +118,7 @@ class IntroPage : ComponentActivity() {
                     }
 
                     // Main content
+                    if(startIntro)
                     Box(
                         modifier = Modifier
                             .fillMaxSize()

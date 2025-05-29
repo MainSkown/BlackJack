@@ -44,7 +44,7 @@ class SettingsPage : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        val preferences = SettingsPreferences(this.getPreferences(MODE_PRIVATE))
+        val preferences = SettingsPreferences(this.getSharedPreferences(getString(R.string.preferences_settings_key), MODE_PRIVATE))
 
         setContent {
             BlackJackTheme {
