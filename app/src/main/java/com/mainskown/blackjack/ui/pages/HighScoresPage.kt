@@ -1,5 +1,7 @@
 package com.mainskown.blackjack.ui.pages
 
+import android.content.Context
+import android.content.SharedPreferences
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -13,11 +15,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import com.mainskown.blackjack.ui.components.GameResult
 import com.mainskown.blackjack.models.GameData
 import com.mainskown.blackjack.models.HighScores
 import com.mainskown.blackjack.R
+import com.mainskown.blackjack.models.DatabaseProvider
 import com.mainskown.blackjack.ui.components.OutlinedText
 import com.mainskown.blackjack.models.GameDao
 import com.mainskown.blackjack.models.HighScoresDao
@@ -121,6 +127,16 @@ class HighScoresPageViewModel(highScoresDao: HighScoresDao, gameDao: GameDao) : 
         val highScores = highScoresDao.getHighScores() ?: HighScores()
         val gameDataList = gameDao.getAllGames()
         _uiState.value = HighScoresPageUiState(highScores, gameDataList)
+    }
+
+    companion object {
+        fun createFactory(highScoresDao: HighScoresDao, gameDao: GameDao): ViewModelProvider.Factory {
+            return viewModelFactory {
+                initializer {
+                    HighScoresPageViewModel(highScoresDao, gameDao)
+                }
+            }
+        }
     }
 }
 

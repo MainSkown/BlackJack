@@ -1,5 +1,6 @@
 package com.mainskown.blackjack.ui.components
 
+import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.AssetManager
 import androidx.compose.animation.AnimatedVisibility
@@ -45,6 +46,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import com.mainskown.blackjack.R
 import com.mainskown.blackjack.models.Deck
 import com.mainskown.blackjack.models.Card
@@ -752,7 +756,30 @@ class GameComponentViewModel(
     fun dealerValue(): Int {
         return calcValue(uiState.value.dealerHand.toTypedArray(), ignoreFaceDown = true)
     }
+
+    companion object {
+        fun createFactory(
+            chips: Int,
+            bet: Int,
+            gameID: Long,
+            gameDao: GameDao,
+            sharedPreferences: SharedPreferences,
+            assetManager: AssetManager,
+            onGameEnd: (GameResult) -> Unit
+        ): ViewModelProvider.Factory {
+            return viewModelFactory {
+                initializer {
+                    GameComponentViewModel(
+                        chips = chips,
+                        bet = bet,
+                        gameID = gameID, // Default value, can be adjusted as needed
+                        sharedPreferences = sharedPreferences,
+                        assetManager = assetManager,
+                        gameDao = gameDao,
+                        onGameEnd = onGameEnd
+                    )
+                }
+            }
+        }
+    }
 }
-
-
-

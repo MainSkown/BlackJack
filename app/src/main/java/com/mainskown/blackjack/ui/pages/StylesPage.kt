@@ -39,6 +39,9 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import com.mainskown.blackjack.ui.components.OutlinedText
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -234,6 +237,19 @@ class StylesPageViewModel(val assetManager: AssetManager, sharedPreferences: Sha
     fun updateSelectedBackgroundStyle(style: BackgroundStyle) {
         _uiState.value = _uiState.value.copy(selectedBackgroundStyle = style)
         stylesPreferences.backgroundStyle = style
+    }
+
+    companion object {
+        fun createFactory(
+            assetManager: AssetManager,
+            sharedPreferences: SharedPreferences
+        ): ViewModelProvider.Factory {
+            return viewModelFactory {
+                initializer {
+                    StylesPageViewModel(assetManager, sharedPreferences)
+                }
+            }
+        }
     }
 }
 

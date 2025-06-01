@@ -32,6 +32,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
@@ -186,6 +189,16 @@ class IntroPageViewModel(private val sharedPreferences: SharedPreferences): View
         val state = _uiState.value
         val titleAlpha = if (state.showTitle) 1f else 0f
         _uiState.value = state.copy(titleAlpha = titleAlpha)
+    }
+
+    companion object {
+        fun createFactory(sharedPreferences: SharedPreferences): ViewModelProvider.Factory {
+            return viewModelFactory {
+                initializer {
+                    IntroPageViewModel(sharedPreferences)
+                }
+            }
+        }
     }
 }
 

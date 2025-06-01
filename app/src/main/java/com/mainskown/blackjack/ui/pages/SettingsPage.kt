@@ -17,6 +17,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -31,6 +32,9 @@ import com.smarttoolfactory.slider.MaterialSliderDefaults
 import com.smarttoolfactory.slider.SliderBrushColor
 import androidx.core.content.edit
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import com.mainskown.blackjack.ui.components.OutlinedText
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -192,17 +196,27 @@ class SettingsPageViewModel(private val sharedPreferences: SharedPreferences): V
         _uiState.value = _uiState.value.copy(skipIntro = value)
         settingsPreferences.updateSkipIntro(value)
     }
+
+    companion object {
+        fun createFactory(sharedPreferences: SharedPreferences): ViewModelProvider.Factory {
+            return viewModelFactory {
+                initializer {
+                    SettingsPageViewModel(sharedPreferences)
+                }
+            }
+        }
+    }
 }
 
 
 class SettingsPreferences(preferences: SharedPreferences) {
     private val sharedPreferences = preferences
 
-    var soundVolume by mutableStateOf(sharedPreferences.getFloat("sound_volume", 0.5f))
+    var soundVolume by mutableFloatStateOf(sharedPreferences.getFloat("sound_volume", 0.5f))
         private set
-    var musicVolume by mutableStateOf(sharedPreferences.getFloat("music_volume", 0.5f))
+    var musicVolume by mutableFloatStateOf(sharedPreferences.getFloat("music_volume", 0.5f))
         private set
-    var skipIntro by mutableStateOf(sharedPreferences.getBoolean("skip_intro", false))
+    var skipIntro by mutableStateOf<Boolean>(sharedPreferences.getBoolean("skip_intro", false))
         private set
 
     fun updateSoundVolume(value: Float) {
@@ -219,4 +233,5 @@ class SettingsPreferences(preferences: SharedPreferences) {
         sharedPreferences.edit { putBoolean("skip_intro", value) }
         skipIntro = value
     }
+
 }

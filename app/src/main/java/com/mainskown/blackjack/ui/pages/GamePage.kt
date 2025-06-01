@@ -1,5 +1,6 @@
 package com.mainskown.blackjack.ui.pages
 
+import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.AssetManager
 import androidx.compose.foundation.border
@@ -26,7 +27,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import com.mainskown.blackjack.ui.components.BiddingComponent
 import com.mainskown.blackjack.ui.components.GameComponent
 import com.mainskown.blackjack.ui.components.GameResult
@@ -158,24 +163,29 @@ fun GamePage(viewModel: GamePageViewModel) {
         }
         /* Game Faze */
         else {
+            val gameComponentViewModel: GameComponentViewModel = viewModel(factory = GameComponentViewModel.createFactory(
+                chips = chips,
+                bet = betAmount,
+                gameID = gameID,
+                gameDao = viewModel.gameDao,
+                sharedPreferences = viewModel.sharedPreferences,
+                assetManager = viewModel.assetManager,
+                onGameEnd = { result ->
+                    scope.launch {
+                        try {
+                            viewModel.onGameEnd(result)
+                        } catch (e: Exception) {
+                            // Handle error
+                            e.printStackTrace()
+                        }
+                    }
+                }
+            ))
             GameComponent(
                 modifier = Modifier
                     .fillMaxSize(),
-                viewModel = GameComponentViewModel(
-                    chips = chips,
-                    bet = betAmount,
-                    gameID = gameID,
-                    sharedPreferences = viewModel.sharedPreferences,
-                    gameDao = viewModel.gameDao,
-                    assetManager = viewModel.assetManager,
-                    onGameEnd = { gameResult ->
-                        // Handle game end
-
-                    },
-                )
+                viewModel = gameComponentViewModel
             )
-
-
         }
     }
 }
@@ -261,4 +271,14 @@ class GamePageViewModel(
 
             DatabaseProvider.updateHighScores(null)
         }
+
+    companion object {
+        fun createFactory(gameDao: GameDao, sharedPreferences: SharedPreferences, assetManager: AssetManager): ViewModelProvider.Factory {
+            return viewModelFactory {
+                initializer {
+                    GamePageViewModel(gameDao, sharedPreferences, assetManager)
+                }
+            }
+        }
     }
+}
