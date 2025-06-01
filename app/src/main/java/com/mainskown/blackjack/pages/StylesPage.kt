@@ -1,6 +1,8 @@
 package com.mainskown.blackjack.pages
 
 import android.content.SharedPreferences
+import android.content.res.AssetManager
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,9 +17,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -88,7 +87,7 @@ fun StylesPage(viewModel: StylesPageViewModel) {
                     colors = ButtonDefaults.outlinedButtonColors(
                         contentColor = if (isSelected) Color(0xFFFFD700) else Color.White
                     ),
-                    border = androidx.compose.foundation.BorderStroke(
+                    border = BorderStroke(
                         width = if (isSelected) 3.dp else 1.dp,
                         color = if (isSelected) Color(0xFFFFD700) else Color.White.copy(alpha = 0.5f)
                     )
@@ -101,14 +100,14 @@ fun StylesPage(viewModel: StylesPageViewModel) {
                     ) {
                         Row {
                             val cardUp = Card(
-                                context,
+                                viewModel.assetManager,
                                 value = 1,
                                 suit = CardSuit.SPADES,
                                 isFaceUp = true,
                                 style = style
                             )
                             val cardDown = Card(
-                                context,
+                                viewModel.assetManager,
                                 value = 1,
                                 suit = CardSuit.SPADES,
                                 isFaceUp = false,
@@ -208,7 +207,7 @@ data class StylesPageUiState(
     val selectedBackgroundStyle: BackgroundStyle = BackgroundStyle.entries.first()
 )
 
-class StylesPageViewModel(sharedPreferences: SharedPreferences) : ViewModel() {
+class StylesPageViewModel(val assetManager: AssetManager, sharedPreferences: SharedPreferences) : ViewModel() {
     private val _uiState = MutableStateFlow(StylesPageUiState())
     val uiState: StateFlow<StylesPageUiState> = _uiState.asStateFlow()
 
