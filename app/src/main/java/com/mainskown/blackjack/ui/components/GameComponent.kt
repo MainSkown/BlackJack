@@ -1,6 +1,5 @@
 package com.mainskown.blackjack.ui.components
 
-import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.AssetManager
 import androidx.compose.animation.AnimatedVisibility
@@ -29,7 +28,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -82,27 +80,26 @@ fun GameComponent(
     val bet = uiState.bet
 
     // Needed for animation
-    var deckPosition = remember { mutableStateOf(Offset.Zero) }
-    var dealerHandPosition = remember { mutableStateOf(Offset.Zero) }
-    var playerHandPosition = remember { mutableStateOf(Offset.Zero) }
+    val deckPosition = remember { mutableStateOf(Offset.Zero) }
+    val dealerHandPosition = remember { mutableStateOf(Offset.Zero) }
+    val playerHandPosition = remember { mutableStateOf(Offset.Zero) }
 
-    var dealersKey = uiState.dealersKey
-    var playersKey = uiState.playersKey
-    var inAnimation = uiState.inAnimation
+    val dealersKey = uiState.dealersKey
+    val playersKey = uiState.playersKey
+    val inAnimation = uiState.inAnimation
 
-    var gameStarted = uiState.gameStarted
-    var playerFinished = uiState.playerFinished
-    var gameEnded = uiState.gameEnded
+    val gameStarted = uiState.gameStarted
+    val playerFinished = uiState.playerFinished
+    val gameEnded = uiState.gameEnded
 
-    var showResultDialog = uiState.showResultDialog
-    var gameResult = uiState.gameResult
+    val showResultDialog = uiState.showResultDialog
+    val gameResult = uiState.gameResult
 
-    var chipsTarget = uiState.chips
+    val chipsTarget = uiState.chips
     val animatedChips by animateIntAsState(
         targetValue = chipsTarget,
         animationSpec = tween(durationMillis = 800), label = "chipsAnim"
     )
-    var resultAmount by remember { mutableIntStateOf(0) }
 
     Box(
         modifier = modifier
@@ -149,7 +146,7 @@ fun GameComponent(
             OutlinedText(
                 text = stringResource(
                     R.string.game_dealer_value,
-                    viewModel.dealerValue()
+                    viewModel.dealerValue(false)
                 ),
                 style = MaterialTheme.typography.bodyLarge,
             )
@@ -250,8 +247,7 @@ fun GameComponent(
                     // Hit button
                     Button(
                         onClick = {
-                            playersKey++
-                            inAnimation = true
+                            viewModel.playerHit()
                         },
                         modifier = Modifier
                             .size(90.dp, 40.dp)
@@ -270,7 +266,7 @@ fun GameComponent(
                     // Hold button
                     Button(
                         onClick = {
-                            playerFinished = true
+                            viewModel.playerHold()
                         },
                         modifier = Modifier
                             .size(90.dp, 40.dp)
@@ -289,12 +285,6 @@ fun GameComponent(
                 }
             }
         }
-
-        var animationFaceDown by remember { mutableStateOf(false) }
-
-        // Remember the drawn cards for dealer and player to prevent multiple draws during recomposition
-        val dealerCards = remember { mutableStateListOf<Card>() }
-        val playerCards = remember { mutableStateListOf<Card>() }
 
         // Trigger the animation when positions are ready
         LaunchedEffect(Unit) {
@@ -358,14 +348,16 @@ fun GameComponent(
                                 GameResult.WIN -> "+${
                                     stringResource(
                                         R.string.game_chips_left,
-                                        resultAmount
+                                        bet
                                     )
                                 }"
 
-                                GameResult.LOSE -> stringResource(
-                                    R.string.game_chips_left,
-                                    resultAmount
-                                )
+                                GameResult.LOSE -> "-${
+                                    stringResource(
+                                        R.string.game_chips_left,
+                                        bet
+                                    )
+                                }"
 
                                 GameResult.DRAW -> "+${stringResource(R.string.game_chips_left, 0)}"
                             },
@@ -388,7 +380,7 @@ fun GameComponent(
                     ) {
                         Button(
                             onClick = {
-                                showResultDialog = false
+                                viewModel.gameEnded()
                                 viewModel.onGameEnd(gameResult)
                             },
                             modifier = Modifier
@@ -413,46 +405,39 @@ fun GameComponent(
         if (dealersKey > 0 && !gameEnded)
             key(dealersKey) {
                 // Check if we've already drawn a card for this key
-                if (dealerCards.size < dealersKey) {
-                    // Draw a new card only if we haven't already for this key
-                    val card = viewModel.drawCard(uiState.animationFaceDown)
-                    dealerCards.add(card)
+                // Draw a new card only if we haven't already for this key
+                val card = viewModel.drawCard(!uiState.animationFaceDown)
 
-                    dealCard(
-                        hand = dealerHand,
-                        card = card,
-                        deckPosition = deckPosition.value,
-                        handPosition = dealerHandPosition.value,
-                        size = 130.dp,
-                        onAnimationEnd = {
-                            animationFaceDown = false
-                            inAnimation = false
-                        }
-                    )
-                }
+                dealCard(
+                    card = card,
+                    deckPosition = deckPosition.value,
+                    handPosition = dealerHandPosition.value,
+                    size = 130.dp,
+                    onAnimationEnd = {
+                        viewModel.addCardToDealerHand(card)
+                        viewModel.setAnimationComplete()
+                    }
+                )
             }
 
         // Dealing card to player's hand
         if (playersKey > 0 && !gameEnded)
             key(playersKey) {
                 // Check if we've already drawn a card for this key
-                if (playerCards.size < playersKey) {
-                    // Draw a new card only if we haven't already for this key
-                    val card = viewModel.drawCard()
-                    playerCards.add(card)
 
-                    dealCard(
-                        hand = playerHand,
-                        card = card,
-                        deckPosition = deckPosition.value,
-                        handPosition = playerHandPosition.value,
-                        size = 130.dp,
-                        onAnimationEnd = {
-                            animationFaceDown = false
-                            inAnimation = false
-                        }
-                    )
-                }
+                // Draw a new card only if we haven't already for this key
+                val card = viewModel.drawCard()
+
+                dealCard(
+                    card = card,
+                    deckPosition = deckPosition.value,
+                    handPosition = playerHandPosition.value,
+                    size = 130.dp,
+                    onAnimationEnd = {
+                        viewModel.addCardToPlayerHand(card)
+                        viewModel.setAnimationComplete()
+                    }
+                )
             }
     }
 }
@@ -463,7 +448,7 @@ fun AnimatedDealingCard(
     deckPosition: Offset,
     handPosition: Offset,
     size: Dp = 130.dp,
-    animationDuration: Int = 600,
+    animationDuration: Int = 800,
     onAnimationEnd: (() -> Unit)? = null
 ) {
     val offset = 115f
@@ -484,32 +469,37 @@ fun AnimatedDealingCard(
     LaunchedEffect(Unit) {
         if (!animationPlayed) {
             animationPlayed = true
-            coroutineScope {
-                val xJob = launch {
-                    animX.animateTo(
-                        targetValue = endX,
-                        animationSpec = tween(durationMillis = animationDuration)
-                    )
+            try {
+                coroutineScope {
+                    val xJob = launch {
+                        animX.animateTo(
+                            targetValue = endX,
+                            animationSpec = tween(durationMillis = animationDuration)
+                        )
+                    }
+                    val yJob = launch {
+                        animY.animateTo(
+                            targetValue = endY,
+                            animationSpec = tween(durationMillis = animationDuration)
+                        )
+                    }
+                    val rotJob = launch {
+                        animRotation.animateTo(
+                            targetValue = 0f,
+                            animationSpec = tween(durationMillis = 400)
+                        )
+                    }
+                    listOf(xJob, yJob, rotJob).joinAll()
                 }
-                val yJob = launch {
-                    animY.animateTo(
-                        targetValue = endY,
-                        animationSpec = tween(durationMillis = animationDuration)
-                    )
-                }
-                val rotJob = launch {
-                    animRotation.animateTo(
-                        targetValue = 0f,
-                        animationSpec = tween(durationMillis = 400)
-                    )
-                }
-                listOf(xJob, yJob, rotJob).joinAll()
+            } catch (e: Exception) {
+                // Log other exceptions if necessary
+                e.printStackTrace()
+            } finally {
+                // Ensure onAnimationEnd is called and visibility is updated,
+                // even if the coroutine is cancelled or an exception occurs.
+                onAnimationEnd?.invoke()
+                isVisible = false
             }
-
-            // First call onAnimationEnd (which adds the card to the hand)
-            // before making the animated card invisible
-            onAnimationEnd?.invoke()
-            isVisible = false
         }
     }
 
@@ -533,7 +523,6 @@ fun AnimatedDealingCard(
 
 @Composable
 fun dealCard(
-    hand: MutableList<Card>,
     card: Card,
     deckPosition: Offset,
     handPosition: Offset,
@@ -546,7 +535,6 @@ fun dealCard(
         handPosition = handPosition,
         size = size,
         onAnimationEnd = {
-            hand.add(card)
             onAnimationEnd?.invoke()
         }
     )
@@ -598,6 +586,20 @@ class GameComponentViewModel(
         )
     }
 
+    // Helper method to update state and trigger recomposition
+    private fun updateState(update: GameComponentUiState.() -> Unit) {
+        val newState = _uiState.value.copy()
+        update(newState)
+        _uiState.value = newState
+    }
+
+    fun addCardToDealerHand(card: Card) {
+        updateState { dealerHand.add(card) }
+    }
+    fun addCardToPlayerHand(card: Card) {
+        updateState { playerHand.add(card) }
+    }
+
     suspend fun startGame() {
         // Shuffle the deck
         val gameData = gameDao.getGameById(gameID)
@@ -606,110 +608,133 @@ class GameComponentViewModel(
 
         for (i in 0 until 4) {
             if (i % 2 == 0) {
-                if (i == 0)
-                // First cards is faceDown
-                    uiState.value.animationFaceDown = true
-
-                uiState.value.dealersKey++
+                if (i == 0) {
+                    // First card is faceDown
+                    updateState { animationFaceDown = true }
+                }
+                updateState { dealersKey++ }
             } else {
-                uiState.value.playersKey++
+                updateState { playersKey++ }
             }
 
-            uiState.value.inAnimation = true
+            updateState { inAnimation = true }
 
-            // Wait for animation to end
-            while (uiState.value.inAnimation) {
-                delay(10)
-            }
+            do {
+                delay(100)
+            } while (_uiState.value.inAnimation)
         }
 
         // If dealer has blackjack, end the game
-        if (calcValue(uiState.value.dealerHand.toTypedArray(), ignoreFaceDown = true) == 21) {
-            uiState.value.playerFinished = true
+        if (calcValue(_uiState.value.dealerHand.toTypedArray(), ignoreFaceDown = true) == 21) {
+            updateState { playerFinished = true }
             delay(600)
         }
         // Same for the player
-        if (calcValue(uiState.value.playerHand.toTypedArray()) == 21 && !uiState.value.playerFinished) {
-            uiState.value.playerFinished = true
+        if (calcValue(_uiState.value.playerHand.toTypedArray()) == 21 && !_uiState.value.playerFinished) {
+            updateState { playerFinished = true }
             delay(600)
         }
-        uiState.value.gameStarted = true
+        updateState { gameStarted = true }
     }
 
     suspend fun calculatePlayerValue() {
-        if (uiState.value.playerHand.isNotEmpty()) {
-            val playerValue = calcValue(uiState.value.playerHand.toTypedArray())
+        if (_uiState.value.playerHand.isNotEmpty()) {
+            val playerValue = calcValue(_uiState.value.playerHand.toTypedArray())
             if (playerValue >= 21) {
                 if (playerValue > 21) {
-                    uiState.value.gameEnded = true
+                    updateState { gameEnded = true }
                     // Wait for a bit before ending the game for player to realise what happened
                     delay(600)
                 }
 
-                uiState.value.playerFinished = true
+                updateState { playerFinished = true }
             }
         }
     }
 
     suspend fun onPlayerFinished() {
-        if (!uiState.value.playerFinished) return
+        if (!_uiState.value.playerFinished) return
         // Dealer's turn: flip the first card by replacing it with a new instance
-        if (uiState.value.dealerHand.isNotEmpty() && !uiState.value.dealerHand[0].isFaceUp) {
-            val old = uiState.value.dealerHand[0]
-            uiState.value.dealerHand[0] = Card(
+        if (_uiState.value.dealerHand.isNotEmpty() && !_uiState.value.dealerHand[0].isFaceUp) {
+            val old = _uiState.value.dealerHand[0]
+            val newHand = _uiState.value.dealerHand.toMutableList()
+            newHand[0] = Card(
                 assetManager,
                 value = old.value,
                 suit = old.suit,
                 isFaceUp = true,
                 style = old.style
             )
+            updateState { dealerHand = newHand }
+
             // Wait for flip the animation to end
             delay(600)
         }
 
-        val playersValue = calcValue(uiState.value.playerHand.toTypedArray())
+        val playersValue = calcValue(_uiState.value.playerHand.toTypedArray())
 
         // Dealer's turn: keep drawing cards until dealer's value is greater than or equal to player's value
-        if (playersValue != 21 || uiState.value.playerHand.size != 2)
-            while (calcValue(uiState.value.dealerHand.toTypedArray()) < playersValue) {
-                uiState.value.dealersKey++
-                uiState.value.inAnimation = true
+        if (playersValue != 21 || _uiState.value.playerHand.size != 2)
+            while (calcValue(_uiState.value.dealerHand.toTypedArray()) < playersValue) {
+                updateState { dealersKey++ }
+                updateState { inAnimation = true }
 
                 // Wait for animation to end
-                while (uiState.value.inAnimation)
+                while (_uiState.value.inAnimation)
                     delay(10)
             }
 
         // Wait for a bit before ending the game for player to realise what happened
         delay(600)
-        uiState.value.gameEnded = true
+        updateState { gameEnded = true }
     }
 
     fun endGame() {
-        if (!uiState.value.gameEnded) return
+        if (!_uiState.value.gameEnded) return
 
-        val dealersValue = calcValue(uiState.value.dealerHand.toTypedArray())
-        val playersValue = calcValue(uiState.value.playerHand.toTypedArray())
+        val dealersValue = calcValue(_uiState.value.dealerHand.toTypedArray())
+        val playersValue = calcValue(_uiState.value.playerHand.toTypedArray())
 
         // Check for win/loss
-        uiState.value.gameResult =
-                // Game lost if player value is greater than 21
-            if (playersValue > 21 || (dealersValue <= 21 && playersValue < dealersValue)) {
-                uiState.value.chips -= bet
-                GameResult.LOSE
-            } else {
-                // Game won if player value is greater than dealer value or dealer exceeds 21
-                if (playersValue > dealersValue || dealersValue > 21) {
-                    uiState.value.chips += bet
-                    GameResult.WIN
-                } else {
-                    // Game draw if player value is equal to dealer value
-                    uiState.value.chips += 0
-                    GameResult.DRAW
-                }
+        if (playersValue > 21 || (dealersValue <= 21 && playersValue < dealersValue)) {
+            // Game lost if player value is greater than 21
+            updateState {
+                chips -= bet
+                gameResult = GameResult.LOSE
             }
+        } else if (playersValue > dealersValue || dealersValue > 21) {
+            // Game won if player value is greater than dealer value or dealer exceeds 21
+            updateState {
+                chips += bet
+                gameResult = GameResult.WIN
+            }
+        } else {
+            // Game draw if player value is equal to dealer value
+            updateState { gameResult = GameResult.DRAW }
+        }
 
-        uiState.value.showResultDialog = true
+        updateState { showResultDialog = true }
+    }
+
+    fun gameEnded(){
+        updateState { showResultDialog = false }
+    }
+
+    // Methods to update state from UI
+    fun playerHit() {
+        updateState {
+            playersKey++
+            inAnimation = true
+        }
+    }
+
+    fun playerHold() {
+        updateState { playerFinished = true }
+    }
+
+    fun setAnimationComplete() {
+        updateState { inAnimation = false }
+        updateState { animationFaceDown = false }
     }
 
     fun drawCard(faceUp: Boolean = true): Card {
@@ -753,8 +778,8 @@ class GameComponentViewModel(
         return calcValue(uiState.value.playerHand.toTypedArray())
     }
 
-    fun dealerValue(): Int {
-        return calcValue(uiState.value.dealerHand.toTypedArray(), ignoreFaceDown = true)
+    fun dealerValue(ignoreFaceDown: Boolean = true): Int {
+        return calcValue(uiState.value.dealerHand.toTypedArray(), ignoreFaceDown)
     }
 
     companion object {

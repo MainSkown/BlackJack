@@ -1,6 +1,5 @@
 package com.mainskown.blackjack.ui.pages
 
-import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.AssetManager
 import androidx.compose.foundation.border
@@ -19,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -52,10 +52,11 @@ fun GamePage(viewModel: GamePageViewModel) {
     val uiState by viewModel.uiState.collectAsState()
 
     val scope = rememberCoroutineScope()
-    var chips = uiState.chips// Starting chips
+    var chips = uiState.chips // Starting chips
     var betAmount = uiState.betAmount // Initial bet amount
     var gameOn = uiState.gameOn // Game state
     var gameID = uiState.gameID // Game ID for database
+    var gameCount = uiState.gameCount // Game count for recomposition
 
     var loading = uiState.loading // Loading state
 
@@ -110,10 +111,7 @@ fun GamePage(viewModel: GamePageViewModel) {
                     Button(
                         onClick = {
                             // Reset game with 100 chips
-                            chips = 100
-                            betAmount = 25
-                            gameOn = false
-                            showOutOfChipsDialog = false
+                            viewModel.resetGame()
                         },
                         modifier = Modifier
                             .size(120.dp, 40.dp)
@@ -143,13 +141,9 @@ fun GamePage(viewModel: GamePageViewModel) {
                     .padding(top = 50.dp),
                 chips = chips,
                 onBetSelected = { bet ->
-                    // Handle bet selection
-                    betAmount = bet
-
                     scope.launch {
-                        loading = true
                         try {
-                            viewModel.createGame()
+                            viewModel.createGame(bet)
                         } catch (e: Exception) {
                             // Handle error
                             e.printStackTrace()
@@ -163,29 +157,30 @@ fun GamePage(viewModel: GamePageViewModel) {
         }
         /* Game Faze */
         else {
-            val gameComponentViewModel: GameComponentViewModel = viewModel(factory = GameComponentViewModel.createFactory(
-                chips = chips,
-                bet = betAmount,
-                gameID = gameID,
-                gameDao = viewModel.gameDao,
-                sharedPreferences = viewModel.sharedPreferences,
-                assetManager = viewModel.assetManager,
-                onGameEnd = { result ->
-                    scope.launch {
-                        try {
-                            viewModel.onGameEnd(result)
-                        } catch (e: Exception) {
-                            // Handle error
-                            e.printStackTrace()
+            key(gameCount) { // Add key here
+                GameComponent(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    viewModel = viewModel(key = "${gameID}_$gameCount", factory = GameComponentViewModel.createFactory(
+                        chips = chips,
+                        bet = betAmount,
+                        gameID = gameID,
+                        gameDao = viewModel.gameDao,
+                        sharedPreferences = viewModel.sharedPreferences,
+                        assetManager = viewModel.assetManager,
+                        onGameEnd = { result ->
+                            scope.launch {
+                                try {
+                                    viewModel.onGameEnd(result)
+                                } catch (e: Exception) {
+                                    // Handle error
+                                    e.printStackTrace()
+                                }
+                            }
                         }
-                    }
-                }
-            ))
-            GameComponent(
-                modifier = Modifier
-                    .fillMaxSize(),
-                viewModel = gameComponentViewModel
-            )
+                    ))
+                )
+            }
         }
     }
 }
@@ -196,7 +191,8 @@ data class GamePageUiState(
     var gameOn: Boolean = false, // Game state
     var gameID: Long = 0L, // Game ID for database
     var loading: Boolean = false, // Loading state
-    var showOutOfChipsDialog: Boolean = false // Show out of chips dialog
+    var showOutOfChipsDialog: Boolean = false, // Show out of chips dialog
+    var gameCount: Int = 0 // Game count for recomposition
 )
 
 class GamePageViewModel(
@@ -206,6 +202,12 @@ class GamePageViewModel(
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(GamePageUiState())
     val uiState: StateFlow<GamePageUiState> = _uiState.asStateFlow()
+
+    private fun updateState(update: GamePageUiState.() -> Unit) {
+        val newState = _uiState.value.copy()
+        update(newState)
+        _uiState.value = newState
+    }
 
     init {
         // Load the last game data from the database
@@ -227,8 +229,13 @@ class GamePageViewModel(
         }
     }
 
-    suspend fun createGame() {
-        uiState.value.gameID = gameDao.insertGame(
+    suspend fun createGame(betAmount: Int) {
+        // Loading
+        updateState {
+            loading = true
+        }
+
+        val gameID = gameDao.insertGame(
             GameData(
                 chipsValue = uiState.value.chips,
                 betValue = uiState.value.betAmount,
@@ -237,40 +244,64 @@ class GamePageViewModel(
                 result = null // Game is in progress
             )
         )
+
+        updateState {
+            this.gameID = gameID
+            gameOn = true // Start the game
+            this.betAmount = betAmount
+            loading = false // Stop loading
+        }
     }
 
-    suspend fun onGameEnd(result: GameResult){
-        // Update chips based on game result
-        uiState.value.chips += when (result) {
-            GameResult.WIN -> uiState.value.betAmount
-            GameResult.LOSE -> -uiState.value.betAmount
-            GameResult.DRAW -> 0
+    fun resetGame() {
+        // Reset game state
+        updateState {
+            chips = 100 // Reset chips to 100
+            betAmount = 25 // Reset bet amount to 25
+            gameOn = false // Reset game state
+            gameID = 0L // Reset game ID
+            loading = false // Stop loading
+            showOutOfChipsDialog = false // Hide out of chips dialog
         }
-        uiState.value.gameOn = false // Reset game state
+    }
+
+    suspend fun onGameEnd(result: GameResult) {
+        // Update chips based on game result
+        updateState {
+            chips += when (result) {
+                GameResult.WIN -> uiState.value.betAmount
+                GameResult.LOSE -> -uiState.value.betAmount
+                GameResult.DRAW -> 0
+            }
+        }
+
+        // Reset game state
+        updateState {
+            gameOn = false
+            gameCount++ // Increment game count to trigger recomposition
+        }
 
         // Update game result in the database
-
+        // Check if gameID is valid
+        if (uiState.value.gameID > 0) {
             // Update the game result in the database
-            // Check if gameID is valid
-            if (uiState.value.gameID > 0) {
-                // Update the game result in the database
-                gameDao.updateGame(
-                    GameData(
-                        uid = uiState.value.gameID,
-                        chipsValue = uiState.value.chips,
-                        betValue = uiState.value.betAmount,
-                        date = LocalDateTime.now()
-                            .format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
-                        result = result
-                    )
+            gameDao.updateGame(
+                GameData(
+                    uid = uiState.value.gameID,
+                    chipsValue = uiState.value.chips,
+                    betValue = uiState.value.betAmount,
+                    date = LocalDateTime.now()
+                        .format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
+                    result = result
                 )
-            } else {
-                // Handle invalid gameID case
-                throw IllegalStateException("Invalid gameID: ${uiState.value.gameID}")
-            }
-
-            DatabaseProvider.updateHighScores(null)
+            )
+        } else {
+            // Handle invalid gameID case
+            throw IllegalStateException("Invalid gameID: ${uiState.value.gameID}")
         }
+
+        DatabaseProvider.updateHighScores(null)
+    }
 
     companion object {
         fun createFactory(gameDao: GameDao, sharedPreferences: SharedPreferences, assetManager: AssetManager): ViewModelProvider.Factory {
