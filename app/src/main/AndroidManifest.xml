@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools" >
 
     <application
         android:allowBackup="true"
@@ -11,17 +11,28 @@
         android:roundIcon="@mipmap/ic_icon_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.BlackJack"
-        tools:targetApi="31">
+        tools:targetApi="31" >
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:label="@string/title_activity_main"
+            android:theme="@style/Theme.BlackJack" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".pages.IntroPage"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.BlackJack" >
-        <intent-filter>
-            <action android:name="android.intent.action.MAIN" />
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
-            <category android:name="android.intent.category.LAUNCHER" />
-        </intent-filter>
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
         <activity
             android:name=".pages.StylesPage"
@@ -39,10 +50,9 @@
             android:label="@string/title_activity_game_page"
             android:theme="@style/Theme.BlackJack" />
         <activity
-            android:name=".pages.MainActivity"
+            android:name=".pages.MainPage"
             android:exported="false"
-            android:theme="@style/Theme.BlackJack">
-
+            android:theme="@style/Theme.BlackJack" >
         </activity>
         <activity android:name=".pages.RulesPage" />
         <activity android:name=".pages.SettingsPage" />
