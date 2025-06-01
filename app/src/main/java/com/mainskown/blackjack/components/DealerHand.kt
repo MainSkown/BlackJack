@@ -1,7 +1,6 @@
 package com.mainskown.blackjack.components
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
@@ -37,9 +36,6 @@ fun displayDealerHand(
             )
             return@Box
         }
-
-        // Center card position for globalPositionRead
-        val centerIdx = cards.size / 2
 
         // Calculate overlap for cards that don't fit
         val overlap = if (cards.size * cardSize.value > 400) {

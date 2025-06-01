@@ -302,7 +302,7 @@ fun GameComponent(
 
         // Calculate the player's hand value
         LaunchedEffect(playerHand.toList()) {
-            viewModel.CalculatePlayerValue()
+            viewModel.calculatePlayerValue()
         }
 
         LaunchedEffect(playerFinished) {
@@ -630,7 +630,7 @@ class GameComponentViewModel(
         uiState.value.gameStarted = true
     }
 
-    suspend fun CalculatePlayerValue() {
+    suspend fun calculatePlayerValue() {
         if (uiState.value.playerHand.isNotEmpty()) {
             val playerValue = calcValue(uiState.value.playerHand.toTypedArray())
             if (playerValue >= 21) {
@@ -732,7 +732,7 @@ class GameComponentViewModel(
         }
 
         // Add aces to the value
-        for (i in 0 until aces) {
+        (0 until aces).forEach { i ->
             value += if (value + 11 > 21) {
                 1
             } else {
