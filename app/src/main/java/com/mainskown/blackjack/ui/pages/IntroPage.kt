@@ -41,6 +41,7 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.PlayerView
+import androidx.navigation.NavController
 import com.mainskown.blackjack.R
 import com.mainskown.blackjack.ui.components.OutlinedText
 import kotlinx.coroutines.delay
@@ -49,21 +50,12 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 @Composable
-fun IntroPage(viewModel: IntroPageViewModel) {
+fun IntroPage(viewModel: IntroPageViewModel, navController: NavController) {
     val uiState by viewModel.uiState.collectAsState()
-
-    var startIntro = uiState.startIntro
     val isVideoFinished = uiState.isVideoFinished
     // Animate overlayAlpha and titleAlpha for smooth transitions
     val animatedOverlayAlpha by animateFloatAsState(targetValue = uiState.overlayAlpha, animationSpec = tween(1000))
     val animatedTitleAlpha by animateFloatAsState(targetValue = uiState.titleAlpha, animationSpec = tween(1000))
-
-    LaunchedEffect(Unit) {
-        if (viewModel.settingsPreferences.skipIntro) {
-            // If skipIntro is enabled, go to MainPage immediately
-        } else
-            startIntro = true
-    }
 
     // Handle the transition sequence
     LaunchedEffect(isVideoFinished) {
@@ -75,12 +67,13 @@ fun IntroPage(viewModel: IntroPageViewModel) {
             // Wait for the title to be shown fully
             delay(3000)
             // Navigate to MainActivity with fade-in transition animation
-
+            navController.navigate("mainPage") {
+                // Clear the back stack to prevent going back to the intro page
+                popUpTo("introPage") { inclusive = true }
+            }
         }
     }
 
-    // Main content
-    if (startIntro)
         Box(
             modifier = Modifier
                 .fillMaxSize()

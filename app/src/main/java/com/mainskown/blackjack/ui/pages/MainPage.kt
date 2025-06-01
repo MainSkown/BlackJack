@@ -19,12 +19,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.mainskown.blackjack.R
 import com.mainskown.blackjack.ui.components.CardButtonHand
 import com.mainskown.blackjack.ui.components.OutlinedText
 
 @Composable
-fun MainPage() {
+fun MainPage(navController: NavController) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -33,7 +34,7 @@ fun MainPage() {
         IconButton(
             onClick = {
                 // Transition to SettingsPage
-
+                navController.navigate("settingsPage")
             },
             modifier = Modifier
                 .padding(15.dp)
@@ -70,17 +71,17 @@ fun MainPage() {
                     when (index) {
                         0 -> {
                             // Transition to GamePage
-
+                            navController.navigate("gamePage")
                         }
 
                         1 -> {
                             // Transition to HighScoresPage
-
+                            navController.navigate("highScoresPage")
                         }
 
                         2 -> {
                             // Transition to RulesPage
-
+                            navController.navigate("rulesPage")
                         }
                     }
                 },
@@ -90,7 +91,7 @@ fun MainPage() {
             OutlinedButton(
                 onClick = {
                     // Transition to StylesPage
-
+                    navController.navigate("stylesPage")
                 },
                 modifier = Modifier
                     .padding(top = 30.dp)

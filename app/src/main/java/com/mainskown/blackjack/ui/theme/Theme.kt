@@ -64,7 +64,7 @@ fun BackgroundWrapper(content: @Composable () -> Unit) {
     val context = LocalContext.current
 
     // Load the background image directly
-    val preferencesKey = context.getString(R.string.preferences_style_key)
+    val preferencesKey = context.getString(R.string.app_name)
     val sharedPrefs = context.getSharedPreferences(preferencesKey, Context.MODE_PRIVATE)
 
     // Use a remember with a unique key for each style to force recomposition when style changes
