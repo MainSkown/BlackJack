@@ -1,6 +1,7 @@
 package com.mainskown.blackjack.components
 
-import android.content.Context
+import android.content.SharedPreferences
+import android.content.res.AssetManager
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInVertically
@@ -24,6 +25,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
@@ -41,13 +43,18 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModel
 import com.mainskown.blackjack.R
 import com.mainskown.blackjack.models.Deck
 import com.mainskown.blackjack.models.Card
+import com.mainskown.blackjack.models.CardStyle
 import com.mainskown.blackjack.models.CardSuit
-import com.mainskown.blackjack.models.DatabaseProvider
+import com.mainskown.blackjack.models.GameDao
 import com.mainskown.blackjack.pages.StylesPreferences
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
@@ -58,35 +65,33 @@ enum class GameResult {
 
 @Composable
 fun GameComponent(
-    context: Context,
-    onGameEnd: (GameResult) -> Unit,
-    chips: Int,
-    bet: Int,
+    viewModel: GameComponentViewModel,
     modifier: Modifier = Modifier,
-    gameID: Long,
 ) {
-    val stylesPreferences = StylesPreferences(context.getSharedPreferences(stringResource(R.string.preferences_style_key), Context.MODE_PRIVATE))
+    val uiState by viewModel.uiState.collectAsState()
 
-    val deck = remember { Deck(context, stylesPreferences.cardStyle) }
-    val dealerHand = remember { mutableStateListOf<Card>() }
-    val playerHand = remember { mutableStateListOf<Card>() }
+    val dealerHand = uiState.dealerHand
+    val playerHand = uiState.playerHand
 
+    val bet = uiState.bet
+
+    // Needed for animation
     var deckPosition = remember { mutableStateOf(Offset.Zero) }
     var dealerHandPosition = remember { mutableStateOf(Offset.Zero) }
     var playerHandPosition = remember { mutableStateOf(Offset.Zero) }
 
-    var dealersKey by remember { mutableIntStateOf(0) }
-    var playersKey by remember { mutableIntStateOf(0) }
-    var inAnimation by remember { mutableStateOf(false) }
+    var dealersKey = uiState.dealersKey
+    var playersKey = uiState.playersKey
+    var inAnimation = uiState.inAnimation
 
-    var gameStarted by remember { mutableStateOf(false) }
-    var playerFinished by remember { mutableStateOf(false) }
-    var gameEnded by remember { mutableStateOf(false) }
+    var gameStarted = uiState.gameStarted
+    var playerFinished = uiState.playerFinished
+    var gameEnded = uiState.gameEnded
 
-    var showResultDialog by remember { mutableStateOf(false) }
-    var gameResult by remember { mutableStateOf(GameResult.LOSE) }
+    var showResultDialog = uiState.showResultDialog
+    var gameResult = uiState.gameResult
 
-    var chipsTarget by remember { mutableIntStateOf(chips) }
+    var chipsTarget = uiState.chips
     val animatedChips by animateIntAsState(
         targetValue = chipsTarget,
         animationSpec = tween(durationMillis = 800), label = "chipsAnim"
@@ -136,7 +141,10 @@ fun GameComponent(
             }
 
             OutlinedText(
-                text = stringResource(R.string.game_dealer_value, calcValue(dealerHand.toTypedArray())),
+                text = stringResource(
+                    R.string.game_dealer_value,
+                    viewModel.dealerValue()
+                ),
                 style = MaterialTheme.typography.bodyLarge,
             )
 
@@ -174,11 +182,11 @@ fun GameComponent(
                             .offset(x = (130.dp / 2))
                             .rotate(-90f),
                         card = Card(
-                            context = context,
+                            viewModel.assetManager,
                             suit = CardSuit.DIAMONDS,
                             value = 1,
                             isFaceUp = false,
-                            style = stylesPreferences.cardStyle
+                            style = uiState.cardStyle
                         ),
                         size = 130.dp,
                         positionRead = { offset ->
@@ -209,7 +217,7 @@ fun GameComponent(
                 }
             )
             OutlinedText(
-                text = stringResource(R.string.game_value, calcValue(playerHand.toTypedArray())),
+                text = stringResource(R.string.game_value, viewModel.playerValue()),
                 style = MaterialTheme.typography.bodyLarge,
             )
 
@@ -289,207 +297,110 @@ fun GameComponent(
                 kotlinx.coroutines.delay(10)
             }
 
-            if (!gameStarted && dealerHand.isEmpty()) {
-                // Check if the game was already started
-                val gameDao = DatabaseProvider.getDatabase(context).gameDao()
-
-                val gameData = gameDao.getGameById(gameID)
-
-                gameDao.updateGameSeed(gameID, deck.shuffle(gameData?.deckSeed))
-
-                // Start the game
-                for (i in 0 until 4) {
-                    if (i % 2 == 0) {
-                        if (i == 0)
-                        // First cards is faceDown
-                            animationFaceDown = true
-
-                        dealersKey++
-                        inAnimation = true
-                    } else {
-                        playersKey++
-                        inAnimation = true
-                    }
-                    // Wait for animation to end
-                    while (inAnimation) {
-                        kotlinx.coroutines.delay(10)
-                    }
-                }
-
-                // If dealer has blackjack, end the game
-                if (calcValue(dealerHand.toTypedArray(), ignoreFaceDown = true) == 21) {
-                    playerFinished = true
-                    kotlinx.coroutines.delay(600)
-                }
-                // Same for the player
-                if (calcValue(playerHand.toTypedArray()) == 21 && !playerFinished) {
-                    playerFinished = true
-                    kotlinx.coroutines.delay(600)
-                }
-                gameStarted = true
-            }
+            viewModel.startGame()
         }
 
         // Calculate the player's hand value
         LaunchedEffect(playerHand.toList()) {
-            if (playerHand.isNotEmpty()) {
-                val playerValue = calcValue(playerHand.toTypedArray())
-                if (playerValue >= 21) {
-                    if(playerValue > 21) {
-                        gameEnded = true
-                        // Wait for a bit before ending the game for player to realise what happened
-                        kotlinx.coroutines.delay(600)
-                    }
-
-                    playerFinished = true
-                }
-            }
+            viewModel.CalculatePlayerValue()
         }
 
         LaunchedEffect(playerFinished) {
-            if (playerFinished && !gameEnded) {
-                // Dealer's turn: flip the first card by replacing it with a new instance
-                if (dealerHand.isNotEmpty() && !dealerHand[0].isFaceUp) {
-                    val old = dealerHand[0]
-                    dealerHand[0] = Card(
-                        context = old.context,
-                        value = old.value,
-                        suit = old.suit,
-                        isFaceUp = true,
-                        style = old.style
-                    )
-                    // Wait for flip the animation to end
-                    kotlinx.coroutines.delay(600)
-                }
-
-                val playersValue = calcValue(playerHand.toTypedArray())
-
-                // Dealer's turn: keep drawing cards until dealer's value is greater than or equal to player's value
-                if(playersValue != 21 || playerHand.size != 2)
-                    while (calcValue(dealerHand.toTypedArray()) < playersValue) {
-                        dealersKey++
-                        inAnimation = true
-
-                        // Wait for animation to end
-                        while (inAnimation)
-                            kotlinx.coroutines.delay(10)
-                    }
-
-                // Wait for a bit before ending the game for player to realise what happened
-                kotlinx.coroutines.delay(600)
-                gameEnded = true
-            }
+            viewModel.onPlayerFinished()
         }
 
         // End game
         LaunchedEffect(gameEnded) {
-            if (gameEnded) {
-                val dealersValue = calcValue(dealerHand.toTypedArray())
-                val playersValue = calcValue(playerHand.toTypedArray())
+            viewModel.endGame()
+        }
 
-                // Check for win/loss
-                gameResult =
-                        // Game lost if player value is greater than 21
-                    if (playersValue > 21 || (dealersValue <= 21 && playersValue < dealersValue)) {
-                        chipsTarget -= bet
-                        resultAmount = -bet
-                        GameResult.LOSE
-                    } else {
-                        // Game won if player value is greater than dealer value or dealer exceeds 21
-                        if (playersValue > dealersValue || dealersValue > 21) {
-                            chipsTarget += bet
-                            resultAmount = bet
-                            GameResult.WIN
-                        }  else {
-                            // Game draw if player value is equal to dealer value
-                            chipsTarget += 0
-                            resultAmount = 0
-                            GameResult.DRAW
-                        }
-                    }
-                showResultDialog = true
-            }}
-
-            if (showResultDialog) {
-                AlertDialog(
-                    onDismissRequest = {},
-                    title = {
+        if (showResultDialog) {
+            AlertDialog(
+                onDismissRequest = {},
+                title = {
+                    Text(
+                        text = when (gameResult) {
+                            GameResult.WIN -> stringResource(R.string.game_won)
+                            GameResult.LOSE -> stringResource(R.string.game_lost)
+                            GameResult.DRAW -> stringResource(R.string.game_draw)
+                        },
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.fillMaxWidth(),
+                        color = when (gameResult) {
+                            GameResult.WIN -> Color(0xFF43A047)
+                            GameResult.LOSE -> Color(0xFFD32F2F)
+                            GameResult.DRAW -> Color(0xFFFFA000)
+                        },
+                        textAlign = TextAlign.Center
+                    )
+                },
+                text = {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = stringResource(R.string.game_chips, animatedChips),
+                            style = MaterialTheme.typography.titleSmall,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 8.dp),
+                            textAlign = TextAlign.Center
+                        )
                         Text(
                             text = when (gameResult) {
-                                GameResult.WIN -> stringResource(R.string.game_won)
-                                GameResult.LOSE -> stringResource(R.string.game_lost)
-                                GameResult.DRAW -> stringResource(R.string.game_draw)
+                                GameResult.WIN -> "+${
+                                    stringResource(
+                                        R.string.game_chips_left,
+                                        resultAmount
+                                    )
+                                }"
 
+                                GameResult.LOSE -> stringResource(
+                                    R.string.game_chips_left,
+                                    resultAmount
+                                )
+
+                                GameResult.DRAW -> "+${stringResource(R.string.game_chips_left, 0)}"
                             },
-                            style = MaterialTheme.typography.titleMedium,
-                            modifier = Modifier.fillMaxWidth(),
                             color = when (gameResult) {
                                 GameResult.WIN -> Color(0xFF43A047)
                                 GameResult.LOSE -> Color(0xFFD32F2F)
                                 GameResult.DRAW -> Color(0xFFFFA000)
                             },
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.fillMaxWidth(),
                             textAlign = TextAlign.Center
                         )
-                    },
-                    text = {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            modifier = Modifier.fillMaxWidth()
+                    }
+                },
+                confirmButton = {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center,
+                    ) {
+                        Button(
+                            onClick = {
+                                showResultDialog = false
+                                viewModel.onGameEnd(gameResult)
+                            },
+                            modifier = Modifier
+                                .size(120.dp, 40.dp)
+                                .border(
+                                    width = 2.dp,
+                                    color = Color(0xFFFFD700), // Gold
+                                    shape = MaterialTheme.shapes.medium
+                                ),
+                            colors = ButtonDefaults.outlinedButtonColors()
                         ) {
                             Text(
-                                text = stringResource(R.string.game_chips, animatedChips),
-                                style = MaterialTheme.typography.titleSmall,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(top = 8.dp),
-                                textAlign = TextAlign.Center
-                            )
-                            Text(
-                                text = when (gameResult) {
-                                    GameResult.WIN -> "+${stringResource(R.string.game_chips_left, resultAmount)}"
-                                    GameResult.LOSE -> stringResource(R.string.game_chips_left, resultAmount)
-                                    GameResult.DRAW -> "+${stringResource(R.string.game_chips_left, 0)}"
-                                },
-                                color = when (gameResult) {
-                                    GameResult.WIN -> Color(0xFF43A047)
-                                    GameResult.LOSE -> Color(0xFFD32F2F)
-                                    GameResult.DRAW -> Color(0xFFFFA000)
-                                },
-                                style = MaterialTheme.typography.bodyLarge,
-                                modifier = Modifier.fillMaxWidth(),
-                                textAlign = TextAlign.Center
+                                text = stringResource(R.string.game_continue),
+                                color = Color.White
                             )
                         }
-                    },
-                    confirmButton = {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center,
-                        ) {
-                            Button(
-                                onClick = {
-                                    showResultDialog = false
-                                    onGameEnd(
-                                        gameResult
-                                    )
-                                },
-                                modifier = Modifier
-                                    .size(120.dp, 40.dp)
-                                    .border(
-                                        width = 2.dp,
-                                        color = Color(0xFFFFD700), // Gold
-                                        shape = MaterialTheme.shapes.medium
-                                    ),
-                                colors = ButtonDefaults.outlinedButtonColors()
-                            ) {
-                                Text(
-                                    text = stringResource(R.string.game_continue),
-                                    color = Color.White
-                                )
-                            }
-                        }
-                    })
+                    }
+                })
         }
 
         // Dealing card to dealer's hand
@@ -498,25 +409,12 @@ fun GameComponent(
                 // Check if we've already drawn a card for this key
                 if (dealerCards.size < dealersKey) {
                     // Draw a new card only if we haven't already for this key
-                    val card = deck.drawCard().apply { isFaceUp = !animationFaceDown }
+                    val card = viewModel.drawCard(uiState.animationFaceDown)
                     dealerCards.add(card)
 
                     dealCard(
                         hand = dealerHand,
                         card = card,
-                        deckPosition = deckPosition.value,
-                        handPosition = dealerHandPosition.value,
-                        size = 130.dp,
-                        onAnimationEnd = {
-                            animationFaceDown = false
-                            inAnimation = false
-                        }
-                    )
-                } else {
-                    // Use the previously drawn card
-                    dealCard(
-                        hand = dealerHand,
-                        card = dealerCards[dealersKey - 1],
                         deckPosition = deckPosition.value,
                         handPosition = dealerHandPosition.value,
                         size = 130.dp,
@@ -534,25 +432,12 @@ fun GameComponent(
                 // Check if we've already drawn a card for this key
                 if (playerCards.size < playersKey) {
                     // Draw a new card only if we haven't already for this key
-                    val card = deck.drawCard()
+                    val card = viewModel.drawCard()
                     playerCards.add(card)
 
                     dealCard(
                         hand = playerHand,
                         card = card,
-                        deckPosition = deckPosition.value,
-                        handPosition = playerHandPosition.value,
-                        size = 130.dp,
-                        onAnimationEnd = {
-                            animationFaceDown = false
-                            inAnimation = false
-                        }
-                    )
-                } else {
-                    // Use the previously drawn card
-                    dealCard(
-                        hand = playerHand,
-                        card = playerCards[playersKey - 1],
                         deckPosition = deckPosition.value,
                         handPosition = playerHandPosition.value,
                         size = 130.dp,
@@ -615,7 +500,7 @@ fun AnimatedDealingCard(
                 listOf(xJob, yJob, rotJob).joinAll()
             }
 
-            // First call onAnimationEnd (which adds the card to the hand) 
+            // First call onAnimationEnd (which adds the card to the hand)
             // before making the animated card invisible
             onAnimationEnd?.invoke()
             isVisible = false
@@ -661,33 +546,211 @@ fun dealCard(
     )
 }
 
-fun calcValue(
-    hand: Array<Card>,
-    ignoreFaceDown: Boolean = false
-): Int {
-    var value = 0
-    var aces = 0
+data class GameComponentUiState(
+    var dealerHand: MutableList<Card> = mutableStateListOf(),
+    var playerHand: MutableList<Card> = mutableStateListOf(),
+    var chips: Int = 0,
+    var bet: Int = 0,
+    var gameStarted: Boolean = false,
+    var playerFinished: Boolean = false,
+    var gameEnded: Boolean = false,
+    var gameResult: GameResult = GameResult.LOSE,
+    var showResultDialog: Boolean = false,
 
-    for (card in hand) {
-        if (!ignoreFaceDown && !card.isFaceUp) continue
+    var cardStyle: CardStyle = CardStyle.entries.first(),
 
-        if (card.value == 1) {
-            aces++
-        } else if (card.value >= 10) {
-            value += 10
-        } else {
-            value += card.value
+    // Animations
+    var dealersKey: Int = 0,
+    var playersKey: Int = 0,
+    var inAnimation: Boolean = false,
+    var animationFaceDown: Boolean = false
+)
+
+class GameComponentViewModel(
+    private val chips: Int,
+    private val bet: Int,
+    private val gameID: Long,
+    private val sharedPreferences: SharedPreferences,
+    val assetManager: AssetManager,
+    private val gameDao: GameDao,
+    val onGameEnd: (GameResult) -> Unit
+) : ViewModel() {
+    private val deck: Deck by lazy {
+        Deck(assetManager, StylesPreferences(sharedPreferences).cardStyle)
+    }
+    private val _uiState = MutableStateFlow(GameComponentUiState())
+    val uiState: StateFlow<GameComponentUiState> = _uiState.asStateFlow()
+
+    private val stylesPreferences = StylesPreferences(sharedPreferences)
+
+    init {
+        // Initialize the game state
+        _uiState.value = GameComponentUiState(
+            chips = chips,
+            bet = bet,
+            cardStyle = stylesPreferences.cardStyle
+        )
+    }
+
+    suspend fun startGame() {
+        // Shuffle the deck
+        val gameData = gameDao.getGameById(gameID)
+
+        gameDao.updateGameSeed(gameID, deck.shuffle(gameData?.deckSeed))
+
+        for (i in 0 until 4) {
+            if (i % 2 == 0) {
+                if (i == 0)
+                // First cards is faceDown
+                    uiState.value.animationFaceDown = true
+
+                uiState.value.dealersKey++
+            } else {
+                uiState.value.playersKey++
+            }
+
+            uiState.value.inAnimation = true
+
+            // Wait for animation to end
+            while (uiState.value.inAnimation) {
+                kotlinx.coroutines.delay(10)
+            }
+        }
+
+        // If dealer has blackjack, end the game
+        if (calcValue(uiState.value.dealerHand.toTypedArray(), ignoreFaceDown = true) == 21) {
+            uiState.value.playerFinished = true
+            kotlinx.coroutines.delay(600)
+        }
+        // Same for the player
+        if (calcValue(uiState.value.playerHand.toTypedArray()) == 21 && !uiState.value.playerFinished) {
+            uiState.value.playerFinished = true
+            kotlinx.coroutines.delay(600)
+        }
+        uiState.value.gameStarted = true
+    }
+
+    suspend fun CalculatePlayerValue() {
+        if (uiState.value.playerHand.isNotEmpty()) {
+            val playerValue = calcValue(uiState.value.playerHand.toTypedArray())
+            if (playerValue >= 21) {
+                if (playerValue > 21) {
+                    uiState.value.gameEnded = true
+                    // Wait for a bit before ending the game for player to realise what happened
+                    kotlinx.coroutines.delay(600)
+                }
+
+                uiState.value.playerFinished = true
+            }
         }
     }
 
-    // Add aces to the value
-    for (i in 0 until aces) {
-        value += if (value + 11 > 21) {
-            1
-        } else {
-            11
+    suspend fun onPlayerFinished() {
+        if (!uiState.value.playerFinished) return
+        // Dealer's turn: flip the first card by replacing it with a new instance
+        if (uiState.value.dealerHand.isNotEmpty() && !uiState.value.dealerHand[0].isFaceUp) {
+            val old = uiState.value.dealerHand[0]
+            uiState.value.dealerHand[0] = Card(
+                assetManager,
+                value = old.value,
+                suit = old.suit,
+                isFaceUp = true,
+                style = old.style
+            )
+            // Wait for flip the animation to end
+            kotlinx.coroutines.delay(600)
+        }
+
+        val playersValue = calcValue(uiState.value.playerHand.toTypedArray())
+
+        // Dealer's turn: keep drawing cards until dealer's value is greater than or equal to player's value
+        if (playersValue != 21 || uiState.value.playerHand.size != 2)
+            while (calcValue(uiState.value.dealerHand.toTypedArray()) < playersValue) {
+                uiState.value.dealersKey++
+                uiState.value.inAnimation = true
+
+                // Wait for animation to end
+                while (uiState.value.inAnimation)
+                    kotlinx.coroutines.delay(10)
+            }
+
+        // Wait for a bit before ending the game for player to realise what happened
+        kotlinx.coroutines.delay(600)
+        uiState.value.gameEnded = true
+    }
+
+    fun endGame() {
+        if (!uiState.value.gameEnded) return
+
+        val dealersValue = calcValue(uiState.value.dealerHand.toTypedArray())
+        val playersValue = calcValue(uiState.value.playerHand.toTypedArray())
+
+        // Check for win/loss
+        uiState.value.gameResult =
+                // Game lost if player value is greater than 21
+            if (playersValue > 21 || (dealersValue <= 21 && playersValue < dealersValue)) {
+                uiState.value.chips -= bet
+                GameResult.LOSE
+            } else {
+                // Game won if player value is greater than dealer value or dealer exceeds 21
+                if (playersValue > dealersValue || dealersValue > 21) {
+                    uiState.value.chips += bet
+                    GameResult.WIN
+                } else {
+                    // Game draw if player value is equal to dealer value
+                    uiState.value.chips += 0
+                    GameResult.DRAW
+                }
+            }
+
+        uiState.value.showResultDialog = true
+    }
+
+    fun drawCard(faceUp: Boolean = true): Card {
+        return deck.drawCard().apply {
+            isFaceUp = faceUp
         }
     }
 
-    return value
+    fun calcValue(
+        hand: Array<Card>,
+        ignoreFaceDown: Boolean = false
+    ): Int {
+        var value = 0
+        var aces = 0
+
+        for (card in hand) {
+            if (!ignoreFaceDown && !card.isFaceUp) continue
+
+            if (card.value == 1) {
+                aces++
+            } else if (card.value >= 10) {
+                value += 10
+            } else {
+                value += card.value
+            }
+        }
+
+        // Add aces to the value
+        for (i in 0 until aces) {
+            value += if (value + 11 > 21) {
+                1
+            } else {
+                11
+            }
+        }
+
+        return value
+    }
+
+    fun playerValue(): Int {
+        return calcValue(uiState.value.playerHand.toTypedArray())
+    }
+
+    fun dealerValue(): Int {
+        return calcValue(uiState.value.dealerHand.toTypedArray(), ignoreFaceDown = true)
+    }
 }
+
+
+

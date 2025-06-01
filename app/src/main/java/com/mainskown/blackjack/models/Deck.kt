@@ -1,15 +1,16 @@
 package com.mainskown.blackjack.models
 
 import android.content.Context
+import android.content.res.AssetManager
 import kotlin.random.Random
 
-class Deck (context: Context, style: CardStyle) {
+class Deck (assetManager: AssetManager, style: CardStyle) {
     private val cards: MutableList<Card> = mutableListOf()
 
     init {
         for (suit in CardSuit.entries) {
             for (value in 1..13) {
-                cards.add(Card(context, value, suit, style = style))
+                cards.add(Card(assetManager, value, suit, style = style))
             }
         }
     }
