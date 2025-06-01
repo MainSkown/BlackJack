@@ -1,4 +1,4 @@
-package com.mainskown.blackjack.pages
+package com.mainskown.blackjack.ui.pages
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,7 +16,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.mainskown.blackjack.R
-import com.mainskown.blackjack.components.OutlinedText
+import com.mainskown.blackjack.ui.components.OutlinedText
 
 @Composable
 fun RulesPage() {

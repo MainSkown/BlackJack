@@ -22,7 +22,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import com.mainskown.blackjack.R
 import com.mainskown.blackjack.models.BackgroundStyle
-import com.mainskown.blackjack.pages.StylesPreferences
 
 private val DarkColorScheme = darkColorScheme(
     primary = Purple80,

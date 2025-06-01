@@ -1,4 +1,4 @@
-package com.mainskown.blackjack.components
+package com.mainskown.blackjack.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
@@ -35,7 +36,7 @@ fun CardButton (
             .background(Color.White, RoundedCornerShape(16.dp))
             .border(2.dp, Color.Black, RoundedCornerShape(16.dp))
             .clickable { onClick() },
-        contentAlignment = androidx.compose.ui.Alignment.Center
+        contentAlignment = Alignment.Center
     ) {
         // Left up corner symbol
         Text(
@@ -46,7 +47,7 @@ fun CardButton (
             fontWeight = FontWeight.Bold,
             modifier = Modifier
                 .padding(start = 8.dp, top = 8.dp)
-                .align(androidx.compose.ui.Alignment.TopStart)
+                .align(Alignment.TopStart)
         )
         Text(
             text = text,
@@ -65,7 +66,7 @@ fun CardButton (
             fontWeight = FontWeight.Bold,
             modifier = Modifier
                 .padding(end = 8.dp, bottom = 8.dp)
-                .align(androidx.compose.ui.Alignment.BottomEnd)
+                .align(Alignment.BottomEnd)
         )
     }
 }

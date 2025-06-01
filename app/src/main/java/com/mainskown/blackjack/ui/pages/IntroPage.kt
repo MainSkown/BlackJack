@@ -1,4 +1,4 @@
-package com.mainskown.blackjack.pages
+package com.mainskown.blackjack.ui.pages
 
 import android.content.SharedPreferences
 import android.view.ViewGroup
@@ -36,9 +36,10 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.PlayerView
 import com.mainskown.blackjack.R
-import com.mainskown.blackjack.components.OutlinedText
+import com.mainskown.blackjack.ui.components.OutlinedText
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -252,7 +253,7 @@ fun VideoPlayer(
                 // Set resize mode to fill the screen completely (may crop parts of the video)
                 useController = false  // Hide the player controls
                 resizeMode =
-                    androidx.media3.ui.AspectRatioFrameLayout.RESIZE_MODE_ZOOM  // Fill the screen by zooming/cropping
+                    AspectRatioFrameLayout.RESIZE_MODE_ZOOM  // Fill the screen by zooming/cropping
             }
         },
         modifier = Modifier.fillMaxSize()

@@ -1,4 +1,4 @@
-package com.mainskown.blackjack.components
+package com.mainskown.blackjack.ui.components
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize

@@ -1,4 +1,4 @@
-package com.mainskown.blackjack.components
+package com.mainskown.blackjack.ui.components
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween

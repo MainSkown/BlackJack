@@ -1,7 +1,8 @@
-package com.mainskown.blackjack.components
+package com.mainskown.blackjack.ui.components
 
     import androidx.compose.foundation.layout.*
     import androidx.compose.runtime.Composable
+    import androidx.compose.ui.Alignment
     import androidx.compose.ui.Modifier
     import androidx.compose.ui.draw.rotate
     import androidx.compose.ui.platform.LocalDensity
@@ -23,7 +24,7 @@ package com.mainskown.blackjack.components
 
         Box(
             modifier = Modifier.fillMaxWidth(),
-            contentAlignment = androidx.compose.ui.Alignment.Center
+            contentAlignment = Alignment.Center
         ) {
             val totalAngle = (cards.size - 1) * rotateStep
             val startAngle = -totalAngle / 2

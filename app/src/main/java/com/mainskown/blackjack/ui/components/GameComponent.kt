@@ -1,4 +1,4 @@
-package com.mainskown.blackjack.components
+package com.mainskown.blackjack.ui.components
 
 import android.content.SharedPreferences
 import android.content.res.AssetManager
@@ -39,6 +39,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
@@ -50,8 +51,9 @@ import com.mainskown.blackjack.models.Card
 import com.mainskown.blackjack.models.CardStyle
 import com.mainskown.blackjack.models.CardSuit
 import com.mainskown.blackjack.models.GameDao
-import com.mainskown.blackjack.pages.StylesPreferences
+import com.mainskown.blackjack.ui.pages.StylesPreferences
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -112,7 +114,7 @@ fun GameComponent(
             OutlinedText(
                 text = stringResource(R.string.app_name),
                 style = MaterialTheme.typography.titleLarge,
-                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                fontWeight = FontWeight.Bold,
             )
 
             OutlinedText(
@@ -294,7 +296,7 @@ fun GameComponent(
         LaunchedEffect(Unit) {
             // Wait until both positions are set
             while (deckPosition.value == Offset.Zero || dealerHandPosition.value == Offset.Zero) {
-                kotlinx.coroutines.delay(10)
+                delay(10)
             }
 
             viewModel.startGame()
@@ -613,19 +615,19 @@ class GameComponentViewModel(
 
             // Wait for animation to end
             while (uiState.value.inAnimation) {
-                kotlinx.coroutines.delay(10)
+                delay(10)
             }
         }
 
         // If dealer has blackjack, end the game
         if (calcValue(uiState.value.dealerHand.toTypedArray(), ignoreFaceDown = true) == 21) {
             uiState.value.playerFinished = true
-            kotlinx.coroutines.delay(600)
+            delay(600)
         }
         // Same for the player
         if (calcValue(uiState.value.playerHand.toTypedArray()) == 21 && !uiState.value.playerFinished) {
             uiState.value.playerFinished = true
-            kotlinx.coroutines.delay(600)
+            delay(600)
         }
         uiState.value.gameStarted = true
     }
@@ -637,7 +639,7 @@ class GameComponentViewModel(
                 if (playerValue > 21) {
                     uiState.value.gameEnded = true
                     // Wait for a bit before ending the game for player to realise what happened
-                    kotlinx.coroutines.delay(600)
+                    delay(600)
                 }
 
                 uiState.value.playerFinished = true
@@ -658,7 +660,7 @@ class GameComponentViewModel(
                 style = old.style
             )
             // Wait for flip the animation to end
-            kotlinx.coroutines.delay(600)
+            delay(600)
         }
 
         val playersValue = calcValue(uiState.value.playerHand.toTypedArray())
@@ -671,11 +673,11 @@ class GameComponentViewModel(
 
                 // Wait for animation to end
                 while (uiState.value.inAnimation)
-                    kotlinx.coroutines.delay(10)
+                    delay(10)
             }
 
         // Wait for a bit before ending the game for player to realise what happened
-        kotlinx.coroutines.delay(600)
+        delay(600)
         uiState.value.gameEnded = true
     }
 

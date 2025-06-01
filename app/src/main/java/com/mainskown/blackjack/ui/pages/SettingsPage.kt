@@ -1,4 +1,4 @@
-package com.mainskown.blackjack.pages
+package com.mainskown.blackjack.ui.pages
 
 import android.content.SharedPreferences
 import androidx.compose.foundation.BorderStroke
@@ -31,7 +31,7 @@ import com.smarttoolfactory.slider.MaterialSliderDefaults
 import com.smarttoolfactory.slider.SliderBrushColor
 import androidx.core.content.edit
 import androidx.lifecycle.ViewModel
-import com.mainskown.blackjack.components.OutlinedText
+import com.mainskown.blackjack.ui.components.OutlinedText
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

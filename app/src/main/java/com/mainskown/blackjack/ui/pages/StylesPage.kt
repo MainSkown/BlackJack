@@ -1,7 +1,9 @@
-package com.mainskown.blackjack.pages
+package com.mainskown.blackjack.ui.pages
 
 import android.content.SharedPreferences
 import android.content.res.AssetManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -28,7 +30,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.edit
 import com.mainskown.blackjack.R
-import com.mainskown.blackjack.components.DisplayCard
+import com.mainskown.blackjack.ui.components.DisplayCard
 import com.mainskown.blackjack.models.BackgroundStyle
 import com.mainskown.blackjack.models.Card
 import com.mainskown.blackjack.models.CardStyle
@@ -37,7 +39,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.ViewModel
-import com.mainskown.blackjack.components.OutlinedText
+import com.mainskown.blackjack.ui.components.OutlinedText
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -153,7 +155,7 @@ fun StylesPage(viewModel: StylesPageViewModel) {
                     colors = ButtonDefaults.outlinedButtonColors(
                         contentColor = if (isSelected) Color(0xFFFFD700) else Color.White
                     ),
-                    border = androidx.compose.foundation.BorderStroke(
+                    border = BorderStroke(
                         width = if (isSelected) 3.dp else 1.dp,
                         color = if (isSelected) Color(0xFFFFD700) else Color.White.copy(alpha = 0.5f)
                     )
@@ -167,10 +169,10 @@ fun StylesPage(viewModel: StylesPageViewModel) {
                         // Load image from assets/backgrounds
                         val assetManager = context.assets
                         val assetPath = "backgrounds/${style.name.lowercase()}.png"
-                        var bitmap: android.graphics.Bitmap? = null
+                        var bitmap: Bitmap? = null
                         try {
                             val inputStream = assetManager.open(assetPath)
-                            bitmap = android.graphics.BitmapFactory.decodeStream(inputStream)
+                            bitmap = BitmapFactory.decodeStream(inputStream)
                             inputStream.close()
                         } catch (_: Exception) {
                         }

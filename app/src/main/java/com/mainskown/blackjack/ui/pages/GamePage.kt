@@ -1,4 +1,4 @@
-package com.mainskown.blackjack.pages
+package com.mainskown.blackjack.ui.pages
 
 import android.content.SharedPreferences
 import android.content.res.AssetManager
@@ -27,11 +27,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.mainskown.blackjack.components.BiddingComponent
-import com.mainskown.blackjack.components.GameComponent
-import com.mainskown.blackjack.components.GameResult
+import com.mainskown.blackjack.ui.components.BiddingComponent
+import com.mainskown.blackjack.ui.components.GameComponent
+import com.mainskown.blackjack.ui.components.GameResult
 import com.mainskown.blackjack.R
-import com.mainskown.blackjack.components.GameComponentViewModel
+import com.mainskown.blackjack.ui.components.GameComponentViewModel
 import com.mainskown.blackjack.models.DatabaseProvider
 import com.mainskown.blackjack.models.GameDao
 import com.mainskown.blackjack.models.GameData
