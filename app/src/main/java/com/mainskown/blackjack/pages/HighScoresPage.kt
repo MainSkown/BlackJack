@@ -1,18 +1,13 @@
 package com.mainskown.blackjack.pages
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Arrangement
+import android.content.Context
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -20,106 +15,119 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.mainskown.blackjack.components.GameResult
 import com.mainskown.blackjack.models.DatabaseProvider
 import com.mainskown.blackjack.models.GameData
 import com.mainskown.blackjack.models.HighScores
-import com.mainskown.blackjack.ui.theme.BlackJackTheme
 import com.mainskown.blackjack.R
 import com.mainskown.blackjack.components.OutlinedText
+import com.mainskown.blackjack.models.GameDao
+import com.mainskown.blackjack.models.HighScoresDao
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
-class HighScoresPage : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            BlackJackTheme {
-                Scaffold(
-                    modifier = Modifier.fillMaxSize(),
-                    containerColor = Color.Transparent, // Make Scaffold background transparent
-                    contentColor = MaterialTheme.colorScheme.onBackground
-                ){ innerPadding ->
-                    var highScores by remember { mutableStateOf(HighScores()) } // Placeholder for high scores
-                    var gameDataList =
-                        remember { mutableStateListOf<GameData>() } // Placeholder for game data
+@Composable
+fun HighScoresPage(viewModel: HighScoresPageViewModel) {
+    val uiState by viewModel.uiState.collectAsState()
+    val gameDataList = uiState.gameDataList // Placeholder for game data
+    val highScores = uiState.highScores // Placeholder for high scores
 
-                    LaunchedEffect(Unit) {
-                        val gameDao = DatabaseProvider.getDatabase(this@HighScoresPage).gameDao()
-                        val highScoresDao =
-                            DatabaseProvider.getDatabase(this@HighScoresPage).highScoresDao()
-                        gameDataList.apply {
-                            addAll(gameDao.getAllGames())
-                        }
-                        highScores = highScoresDao.getHighScores() ?: HighScores()
-                    }
 
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(innerPadding)
-                            .padding(top = 30.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        // Main Title
-                        OutlinedText(
-                            text = getString(R.string.app_name),
-                            style = MaterialTheme.typography.titleLarge,
-                        )
-                        // High Scores
-                        OutlinedText(
-                            text = getString(R.string.high_scores_best_scores),
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(top=20.dp, bottom = 20.dp)
-                        )
-                        OutlinedText(
-                            text = getString(R.string.high_scores_best_chips, highScores.chipsValue),
-                            style = MaterialTheme.typography.titleSmall,
-                            modifier = Modifier.padding(bottom = 10.dp)
-                        )
-                        OutlinedText(
-                            text = getString(R.string.high_scores_best_bet, highScores.betValue),
-                            style = MaterialTheme.typography.titleSmall,
-                            modifier = Modifier.padding(bottom = 10.dp)
-                        )
-                        OutlinedText(
-                            text = getString(R.string.high_scores_best_streak, highScores.streak),
-                            style = MaterialTheme.typography.titleSmall,
-                        )
+    Column(
+        modifier = Modifier
+            .fillMaxSize()           
+            .padding(top = 30.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        // Main Title
+        OutlinedText(
+            text = stringResource(R.string.app_name),
+            style = MaterialTheme.typography.titleLarge,
+        )
+        // High Scores
+        OutlinedText(
+            text = stringResource(R.string.high_scores_best_scores),
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(top = 20.dp, bottom = 20.dp)
+        )
+        OutlinedText(
+            text = stringResource(R.string.high_scores_best_chips, highScores.chipsValue),
+            style = MaterialTheme.typography.titleSmall,
+            modifier = Modifier.padding(bottom = 10.dp)
+        )
+        OutlinedText(
+            text = stringResource(R.string.high_scores_best_bet, highScores.betValue),
+            style = MaterialTheme.typography.titleSmall,
+            modifier = Modifier.padding(bottom = 10.dp)
+        )
+        OutlinedText(
+            text = stringResource(R.string.high_scores_best_streak, highScores.streak),
+            style = MaterialTheme.typography.titleSmall,
+        )
 
-                        // Statistics
-                        OutlinedText(
-                            text = getString(R.string.high_scores_statistics),
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(top=20.dp, bottom = 20.dp)
-                        )
-                        OutlinedText(
-                            text = getString(R.string.high_scores_total_games, gameDataList.size),
-                            style = MaterialTheme.typography.titleSmall,
-                            modifier = Modifier.padding(bottom = 10.dp)
-                        )
-                        OutlinedText(
-                            text = getString(R.string.high_scores_wins, gameDataList.count { it.result == GameResult.WIN  }),
-                            style = MaterialTheme.typography.titleSmall,
-                            modifier = Modifier.padding(bottom = 10.dp)
-                        )
-                        OutlinedText(
-                            text = getString(R.string.high_scores_losses, gameDataList.count { it.result == GameResult.LOSE }),
-                            style = MaterialTheme.typography.titleSmall,
-                            modifier = Modifier.padding(bottom = 10.dp)
-                        )
-                        OutlinedText(
-                            text = getString(R.string.high_scores_draws, gameDataList.count { it.result == GameResult.DRAW }),
-                            style = MaterialTheme.typography.titleSmall,
-                            modifier = Modifier.padding(bottom = 10.dp)
-                        )
-                    }
-                }
-            }
-        }
+        // Statistics
+        OutlinedText(
+            text = stringResource(R.string.high_scores_statistics),
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(top = 20.dp, bottom = 20.dp)
+        )
+        OutlinedText(
+            text = stringResource(R.string.high_scores_total_games, gameDataList.size),
+            style = MaterialTheme.typography.titleSmall,
+            modifier = Modifier.padding(bottom = 10.dp)
+        )
+        OutlinedText(
+            text = stringResource(
+                R.string.high_scores_wins,
+                gameDataList.count { it.result == GameResult.WIN }),
+            style = MaterialTheme.typography.titleSmall,
+            modifier = Modifier.padding(bottom = 10.dp)
+        )
+        OutlinedText(
+            text = stringResource(
+                R.string.high_scores_losses,
+                gameDataList.count { it.result == GameResult.LOSE }),
+            style = MaterialTheme.typography.titleSmall,
+            modifier = Modifier.padding(bottom = 10.dp)
+        )
+        OutlinedText(
+            text = stringResource(
+                R.string.high_scores_draws,
+                gameDataList.count { it.result == GameResult.DRAW }),
+            style = MaterialTheme.typography.titleSmall,
+            modifier = Modifier.padding(bottom = 10.dp)
+        )
     }
 }
+
+data class HighScoresPageUiState(
+    val highScores: HighScores = HighScores(),
+    val gameDataList: List<GameData> = emptyList()
+)
+
+class HighScoresPageViewModel(highScoresDao: HighScoresDao, gameDao: GameDao) : ViewModel() {
+    private val _uiState = MutableStateFlow(HighScoresPageUiState())
+    val uiState: StateFlow<HighScoresPageUiState> = _uiState.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            loadHighScores(highScoresDao, gameDao)
+        }
+    }
+
+    private suspend fun loadHighScores(highScoresDao: HighScoresDao, gameDao: GameDao) {
+        val highScores = highScoresDao.getHighScores() ?: HighScores()
+        val gameDataList = gameDao.getAllGames()
+        _uiState.value = HighScoresPageUiState(highScores, gameDataList)
+    }
+}
+
