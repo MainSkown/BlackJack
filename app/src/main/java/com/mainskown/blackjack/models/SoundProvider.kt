@@ -3,6 +3,7 @@ package com.mainskown.blackjack.models
 import android.content.Context
 import android.content.SharedPreferences
 import android.media.MediaPlayer
+import android.util.Log
 import com.mainskown.blackjack.R
 
 enum class SoundType {
@@ -15,15 +16,17 @@ enum class SoundType {
 class SoundProvider {
     // MediaPlayer instances for different sounds
     private val cardDrawSoundPlayer: MediaPlayer
-    private val musicPlayer: MediaPlayer
     private val buttonClickSoundPlayer: MediaPlayer
     private val gameWonSoundPlayer: MediaPlayer
     private val gameLostSoundPlayer: MediaPlayer
 
     private val settingsPreferences: SettingsPreferences
+    private val musicPlayer: MediaPlayer
+    private var musicVolume: Float
 
     constructor(context: Context, sharedPreferences: SharedPreferences) {
         settingsPreferences = SettingsPreferences(sharedPreferences)
+        musicVolume = settingsPreferences.musicVolume
 
         //  Initialize sound resources here
         cardDrawSoundPlayer = MediaPlayer.create(
@@ -57,7 +60,7 @@ class SoundProvider {
         private lateinit var instance: SoundProvider
 
         fun init(context: Context, sharedPreferences: SharedPreferences) {
-            synchronized(this) {
+            if (!::instance.isInitialized) {
                 instance = SoundProvider(context, sharedPreferences)
             }
         }
@@ -67,6 +70,9 @@ class SoundProvider {
         }
 
         fun playSound(soundType: SoundType) {
+            if (!::instance.isInitialized) {
+                throw IllegalStateException("SoundProvider not initialized. Call init() first.")
+            }
             val volume = instance.settingsPreferences.soundVolume
             when (soundType) {
                 SoundType.CARD_DRAW -> {
@@ -96,31 +102,72 @@ class SoundProvider {
         }
 
         fun startPlayingMusic() {
-            if (!instance.musicPlayer.isPlaying) {
-                instance.musicPlayer.isLooping = true
-                val volume = instance.settingsPreferences.musicVolume
-                instance.musicPlayer.setVolume(volume, volume)
-                instance.musicPlayer.start()
+            if (!::instance.isInitialized) {
+                throw IllegalStateException("SoundProvider not initialized. Call init() first.")
+            }
+            if (instance.musicVolume == 0f) {
+                if (instance.musicPlayer.isPlaying) {
+                    instance.musicPlayer.pause()  // Use pause instead of stop
+                }
+                return
+            }
+            else if (!instance.musicPlayer.isPlaying) {
+                try {
+                    instance.musicPlayer.isLooping = true
+                    val volume = instance.musicVolume
+                    instance.musicPlayer.setVolume(volume, volume)
+                    if (instance.musicPlayer.currentPosition > 0) {
+                        instance.musicPlayer.prepare()
+                    }
+                    instance.musicPlayer.start()
+                } catch (e: Exception) {
+                    // Handle potential errors
+                    e.printStackTrace()
+                }
             }
         }
 
         fun updateMusicVolume(volume: Float) {
-            if (volume == 0f) {
-                instance.musicPlayer.pause()
-            } else if (!instance.musicPlayer.isPlaying) {
-                instance.musicPlayer.start()
+            if (!::instance.isInitialized) {
+                throw IllegalStateException("SoundProvider not initialized. Call init() first.")
             }
             instance.musicPlayer.setVolume(volume, volume)
+            instance.musicVolume = volume
+
+            if (volume == 0f) {
+                if (instance.musicPlayer.isPlaying) {
+                    instance.musicPlayer.pause()
+                }
+            } else if (!instance.musicPlayer.isPlaying) {
+                try {
+                    instance.musicPlayer.start()
+                } catch (e: Exception) {
+                    // If it fails, try preparing first
+                    try {
+                        instance.musicPlayer.prepare()
+                        instance.musicPlayer.start()
+                    } catch (e: Exception) {
+                        // Handle any errors
+                        e.printStackTrace()
+                    }
+                }
+            }
         }
 
         fun pauseMusic() {
+            if (!::instance.isInitialized) {
+                throw IllegalStateException("SoundProvider not initialized. Call init() first.")
+            }
             if (instance.musicPlayer.isPlaying) {
                 instance.musicPlayer.pause()
             }
         }
 
         fun resumeMusic() {
-            if (!instance.musicPlayer.isPlaying) {
+            if (!::instance.isInitialized) {
+                throw IllegalStateException("SoundProvider not initialized. Call init() first.")
+            }
+            if (!instance.musicPlayer.isPlaying && instance.settingsPreferences.musicVolume > 0f) {
                 instance.musicPlayer.start()
             }
         }
