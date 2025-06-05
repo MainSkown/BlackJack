@@ -211,6 +211,8 @@ class GameComponentViewModel(
     }
 
     fun drawCard(faceUp: Boolean = true): Card {
+        SoundProvider.playSound(SoundType.CARD_DRAW)
+        Log.d("GameComponentViewModel", "Drawing card")
         return deck.drawCard().apply {
             isFaceUp = faceUp
         }

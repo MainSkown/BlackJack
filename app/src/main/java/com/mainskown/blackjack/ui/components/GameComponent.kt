@@ -378,40 +378,50 @@ fun GameComponent(
                 })
         }
 
+        // Key list to ignore used keys
+        val dealersKeys = remember { mutableListOf<Int>() }
         // Dealing card to dealer's hand
         if (dealersKey > 0 && !gameEnded)
             key(dealersKey) {
-                // Draw a new card only if we haven't already for this key
-                val card = viewModel.drawCard(!uiState.animationFaceDown)
+                if (!dealersKeys.contains(dealersKey)) { // Ignore already used keys
+                    // Draw a new card only if we haven't already for this key
+                    val card = viewModel.drawCard(!uiState.animationFaceDown)
 
-                dealCard(
-                    card = card,
-                    deckPosition = deckPosition.value,
-                    handPosition = dealerHandPosition.value,
-                    size = 130.dp,
-                    onAnimationEnd = {
-                        viewModel.addCardToDealerHand(card)
-                        viewModel.setAnimationComplete()
-                    }
-                )
+                    dealCard(
+                        card = card,
+                        deckPosition = deckPosition.value,
+                        handPosition = dealerHandPosition.value,
+                        size = 130.dp,
+                        onAnimationEnd = {
+                            viewModel.addCardToDealerHand(card)
+                            viewModel.setAnimationComplete()
+                            dealersKeys.add(dealersKey) // Add key to ignore list
+                        }
+                    )
+                }
             }
 
+        // Key list to ignore used keys
+        val playersKeys = remember { mutableListOf<Int>() }
         // Dealing card to player's hand
         if (playersKey > 0 && !gameEnded)
             key(playersKey) {
-                // Draw a new card only if we haven't already for this key
-                val card = viewModel.drawCard()
+                if (!playersKeys.contains(playersKey)) { // Ignore already used keys
+                    // Draw a new card only if we haven't already for this key
+                    val card = viewModel.drawCard()
 
-                dealCard(
-                    card = card,
-                    deckPosition = deckPosition.value,
-                    handPosition = playerHandPosition.value,
-                    size = 130.dp,
-                    onAnimationEnd = {
-                        viewModel.addCardToPlayerHand(card)
-                        viewModel.setAnimationComplete()
-                    }
-                )
+                    dealCard(
+                        card = card,
+                        deckPosition = deckPosition.value,
+                        handPosition = playerHandPosition.value,
+                        size = 130.dp,
+                        onAnimationEnd = {
+                            viewModel.addCardToPlayerHand(card)
+                            viewModel.setAnimationComplete()
+                            playersKeys.add(playersKey) // Add key to ignore list
+                        }
+                    )
+                }
             }
     }
 }
