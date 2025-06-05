@@ -44,15 +44,12 @@ import com.mainskown.blackjack.R
 import com.mainskown.blackjack.models.Card
 import com.mainskown.blackjack.models.CardSuit
 import com.mainskown.blackjack.models.GameComponentViewModel
+import com.mainskown.blackjack.models.GameResult
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
-
-enum class GameResult {
-    WIN, LOSE, DRAW
-}
 
 @Composable
 fun GameComponent(

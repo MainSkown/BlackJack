@@ -14,7 +14,6 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
 import androidx.room.Update
-import com.mainskown.blackjack.ui.components.GameResult
 
 @Entity
 data class GameData(

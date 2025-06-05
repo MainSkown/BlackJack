@@ -12,8 +12,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.mainskown.blackjack.ui.components.GameResult
 import com.mainskown.blackjack.R
+import com.mainskown.blackjack.models.GameResult
 import com.mainskown.blackjack.ui.components.OutlinedText
 import com.mainskown.blackjack.models.HighScoresPageViewModel
 
