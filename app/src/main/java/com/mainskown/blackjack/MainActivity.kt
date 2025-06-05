@@ -29,6 +29,7 @@ import com.mainskown.blackjack.models.HighScoresPageViewModel
 import com.mainskown.blackjack.models.IntroPageViewModel
 import com.mainskown.blackjack.models.SettingsPageViewModel
 import com.mainskown.blackjack.models.SettingsPreferences
+import com.mainskown.blackjack.models.SoundProvider
 import com.mainskown.blackjack.models.StylesPageViewModel
 import com.mainskown.blackjack.ui.theme.BlackJackTheme
 import com.mainskown.blackjack.ui.pages.*
@@ -83,6 +84,9 @@ fun NavigationHost(navController: NavHostController, modifier: Modifier = Modifi
     val database = DatabaseProvider.getDatabase(context)
     // AssetManager
     val assetManager = context.assets
+
+    // Setup SoundProvider
+    SoundProvider.init(context, sharedPreferences)
 
     NavHost(
         navController = navController,
