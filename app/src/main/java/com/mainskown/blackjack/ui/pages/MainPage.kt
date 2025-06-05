@@ -21,11 +21,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.mainskown.blackjack.R
+import com.mainskown.blackjack.models.SoundProvider
 import com.mainskown.blackjack.ui.components.CardButtonHand
 import com.mainskown.blackjack.ui.components.OutlinedText
 
 @Composable
 fun MainPage(navController: NavController) {
+    SoundProvider.startPlayingMusic()
     Box(
         modifier = Modifier
             .fillMaxSize()

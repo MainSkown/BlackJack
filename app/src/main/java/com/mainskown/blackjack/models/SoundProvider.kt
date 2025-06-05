@@ -49,5 +49,23 @@ class SoundProvider {
                 }
             }
         }
+
+        fun startPlayingMusic() {
+            if (!instance.musicPlayer.isPlaying) {
+                instance.musicPlayer.isLooping = true
+                val volume = instance.settingsPreferences.musicVolume
+                instance.musicPlayer.setVolume(volume, volume)
+                instance.musicPlayer.start()
+            }
+        }
+
+        fun updateMusicVolume(volume: Float) {
+            if (volume == 0f) {
+                instance.musicPlayer.pause()
+            } else if (!instance.musicPlayer.isPlaying) {
+                instance.musicPlayer.start()
+            }
+            instance.musicPlayer.setVolume(volume, volume)
+        }
     }
 }

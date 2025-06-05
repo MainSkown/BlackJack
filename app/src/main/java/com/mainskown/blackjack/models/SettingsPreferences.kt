@@ -25,6 +25,7 @@ class SettingsPreferences(preferences: SharedPreferences) {
     fun updateMusicVolume(value: Float) {
         sharedPreferences.edit { putFloat("music_volume", value) }
         musicVolume = value
+        SoundProvider.updateMusicVolume(value)
     }
 
     fun updateSkipIntro(value: Boolean) {
