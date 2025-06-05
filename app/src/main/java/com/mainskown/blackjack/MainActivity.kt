@@ -3,7 +3,9 @@ package com.mainskown.blackjack
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
@@ -30,6 +32,7 @@ import com.mainskown.blackjack.models.IntroPageViewModel
 import com.mainskown.blackjack.models.SettingsPageViewModel
 import com.mainskown.blackjack.models.SettingsPreferences
 import com.mainskown.blackjack.models.SoundProvider
+import com.mainskown.blackjack.models.SoundType
 import com.mainskown.blackjack.models.StylesPageViewModel
 import com.mainskown.blackjack.ui.theme.BlackJackTheme
 import com.mainskown.blackjack.ui.pages.*
@@ -72,6 +75,20 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        // Pause the music when the activity is paused
+        if(SoundProvider.initiated())
+            SoundProvider.pauseMusic()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Resume the music when the activity is resumed
+        if(SoundProvider.initiated())
+            SoundProvider.resumeMusic()
     }
 }
 

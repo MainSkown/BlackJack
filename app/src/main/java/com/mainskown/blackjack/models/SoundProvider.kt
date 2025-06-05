@@ -62,6 +62,10 @@ class SoundProvider {
             }
         }
 
+        fun initiated(): Boolean {
+            return ::instance.isInitialized
+        }
+
         fun playSound(soundType: SoundType) {
             val volume = instance.settingsPreferences.soundVolume
             when (soundType) {
@@ -107,6 +111,18 @@ class SoundProvider {
                 instance.musicPlayer.start()
             }
             instance.musicPlayer.setVolume(volume, volume)
+        }
+
+        fun pauseMusic() {
+            if (instance.musicPlayer.isPlaying) {
+                instance.musicPlayer.pause()
+            }
+        }
+
+        fun resumeMusic() {
+            if (!instance.musicPlayer.isPlaying) {
+                instance.musicPlayer.start()
+            }
         }
     }
 }
