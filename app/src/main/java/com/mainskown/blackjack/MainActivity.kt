@@ -24,6 +24,12 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mainskown.blackjack.models.DatabaseProvider
+import com.mainskown.blackjack.models.GamePageViewModel
+import com.mainskown.blackjack.models.HighScoresPageViewModel
+import com.mainskown.blackjack.models.IntroPageViewModel
+import com.mainskown.blackjack.models.SettingsPageViewModel
+import com.mainskown.blackjack.models.SettingsPreferences
+import com.mainskown.blackjack.models.StylesPageViewModel
 import com.mainskown.blackjack.ui.theme.BlackJackTheme
 import com.mainskown.blackjack.ui.pages.*
 

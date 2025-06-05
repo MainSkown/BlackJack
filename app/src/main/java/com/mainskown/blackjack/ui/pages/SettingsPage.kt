@@ -1,6 +1,5 @@
 package com.mainskown.blackjack.ui.pages
 
-import android.content.SharedPreferences
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -17,9 +16,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -30,15 +26,8 @@ import com.mainskown.blackjack.R
 import com.smarttoolfactory.slider.ColorfulIconSlider
 import com.smarttoolfactory.slider.MaterialSliderDefaults
 import com.smarttoolfactory.slider.SliderBrushColor
-import androidx.core.content.edit
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
+import com.mainskown.blackjack.models.SettingsPageViewModel
 import com.mainskown.blackjack.ui.components.OutlinedText
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 
 @Composable
 fun SettingsPage(viewModel: SettingsPageViewModel) {
@@ -159,79 +148,4 @@ fun SettingsPage(viewModel: SettingsPageViewModel) {
         // Language selector
         // TODO: Implement language selector
     }
-}
-
-data class SettingsPageUiState(
-    val soundVolume: Float = 0.5f,
-    val musicVolume: Float = 0.5f,
-    val skipIntro: Boolean = false
-)
-
-class SettingsPageViewModel(private val sharedPreferences: SharedPreferences): ViewModel(){
-    private val _uiState = MutableStateFlow(SettingsPageUiState())
-    val uiState: StateFlow<SettingsPageUiState> = _uiState.asStateFlow()
-    val settingsPreferences: SettingsPreferences by lazy {
-        SettingsPreferences(sharedPreferences)
-    }
-    
-    init{
-        _uiState.value = SettingsPageUiState(
-            soundVolume = settingsPreferences.soundVolume,
-            musicVolume = settingsPreferences.musicVolume,
-            skipIntro = settingsPreferences.skipIntro
-        )
-    }
-    
-    fun updateSoundVolume(value: Float) {
-        _uiState.value = _uiState.value.copy(soundVolume = value)
-        settingsPreferences.updateSoundVolume(value)
-    }
-    
-    fun updateMusicVolume(value: Float) {
-        _uiState.value = _uiState.value.copy(musicVolume = value)
-        settingsPreferences.updateMusicVolume(value)
-    }
-    
-    fun updateSkipIntro(value: Boolean) {
-        _uiState.value = _uiState.value.copy(skipIntro = value)
-        settingsPreferences.updateSkipIntro(value)
-    }
-
-    companion object {
-        fun createFactory(sharedPreferences: SharedPreferences): ViewModelProvider.Factory {
-            return viewModelFactory {
-                initializer {
-                    SettingsPageViewModel(sharedPreferences)
-                }
-            }
-        }
-    }
-}
-
-
-class SettingsPreferences(preferences: SharedPreferences) {
-    private val sharedPreferences = preferences
-
-    var soundVolume by mutableFloatStateOf(sharedPreferences.getFloat("sound_volume", 0.5f))
-        private set
-    var musicVolume by mutableFloatStateOf(sharedPreferences.getFloat("music_volume", 0.5f))
-        private set
-    var skipIntro by mutableStateOf<Boolean>(sharedPreferences.getBoolean("skip_intro", false))
-        private set
-
-    fun updateSoundVolume(value: Float) {
-        sharedPreferences.edit { putFloat("sound_volume", value) }
-        soundVolume = value
-    }
-
-    fun updateMusicVolume(value: Float) {
-        sharedPreferences.edit { putFloat("music_volume", value) }
-        musicVolume = value
-    }
-
-    fun updateSkipIntro(value: Boolean) {
-        sharedPreferences.edit { putBoolean("skip_intro", value) }
-        skipIntro = value
-    }
-
 }

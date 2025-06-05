@@ -1,7 +1,5 @@
 package com.mainskown.blackjack.ui.pages
 
-import android.content.SharedPreferences
-import android.content.res.AssetManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import androidx.compose.foundation.BorderStroke
@@ -28,7 +26,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.core.content.edit
 import com.mainskown.blackjack.R
 import com.mainskown.blackjack.ui.components.DisplayCard
 import com.mainskown.blackjack.models.BackgroundStyle
@@ -38,14 +35,8 @@ import com.mainskown.blackjack.models.CardSuit
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
+import com.mainskown.blackjack.models.StylesPageViewModel
 import com.mainskown.blackjack.ui.components.OutlinedText
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 
 @Composable
 fun StylesPage(viewModel: StylesPageViewModel) {
@@ -206,81 +197,3 @@ fun StylesPage(viewModel: StylesPageViewModel) {
         }
     }
 }
-
-data class StylesPageUiState(
-    val selectedCardStyle: CardStyle = CardStyle.entries.first(),
-    val selectedBackgroundStyle: BackgroundStyle = BackgroundStyle.entries.first()
-)
-
-class StylesPageViewModel(val assetManager: AssetManager, sharedPreferences: SharedPreferences) : ViewModel() {
-    private val _uiState = MutableStateFlow(StylesPageUiState())
-    val uiState: StateFlow<StylesPageUiState> = _uiState.asStateFlow()
-
-    init {
-        // Initialize the styles preferences
-        val stylesPreferences = StylesPreferences(sharedPreferences)
-        _uiState.value = StylesPageUiState(
-            selectedCardStyle = stylesPreferences.cardStyle,
-            selectedBackgroundStyle = stylesPreferences.backgroundStyle
-        )
-    }
-
-    val stylesPreferences: StylesPreferences by lazy {
-        StylesPreferences(sharedPreferences)
-    }
-
-    fun updateSelectedCardStyle(style: CardStyle) {
-        _uiState.value = _uiState.value.copy(selectedCardStyle = style)
-        stylesPreferences.cardStyle = style
-    }
-
-    fun updateSelectedBackgroundStyle(style: BackgroundStyle) {
-        _uiState.value = _uiState.value.copy(selectedBackgroundStyle = style)
-        stylesPreferences.backgroundStyle = style
-    }
-
-    companion object {
-        fun createFactory(
-            assetManager: AssetManager,
-            sharedPreferences: SharedPreferences
-        ): ViewModelProvider.Factory {
-            return viewModelFactory {
-                initializer {
-                    StylesPageViewModel(assetManager, sharedPreferences)
-                }
-            }
-        }
-    }
-}
-
-
-class StylesPreferences(preferences: SharedPreferences) {
-    private val sharedPreferences = preferences
-
-    var cardStyle: CardStyle = CardStyle.entries.first()
-        get() {
-            val value = sharedPreferences.getString("card_style", field.name) ?: field.name
-            return CardStyle.valueOf(value)
-        }
-        set(value) {
-            sharedPreferences.edit { putString("card_style", value.name) }
-            field = value
-        }
-
-    var backgroundStyle: BackgroundStyle = BackgroundStyle.entries.first()
-        get() {
-            val storedValue =
-                sharedPreferences.getString("background_style", field.name) ?: field.name
-            return BackgroundStyle.valueOf(storedValue)
-        }
-        set(value) {
-            sharedPreferences.edit {
-                putString(
-                    "background_style",
-                    value.name
-                )
-            } // Store the enum name (not toString)
-            field = value
-        }
-}
-
