@@ -1,11 +1,9 @@
 package com.mainskown.blackjack
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
@@ -19,12 +17,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mainskown.blackjack.models.DatabaseProvider
 import com.mainskown.blackjack.models.GamePageViewModel
 import com.mainskown.blackjack.models.HighScoresPageViewModel
@@ -34,10 +32,9 @@ import com.mainskown.blackjack.models.SettingsPreferences
 import com.mainskown.blackjack.models.SoundProvider
 import com.mainskown.blackjack.models.SoundType
 import com.mainskown.blackjack.models.StylesPageViewModel
-import com.mainskown.blackjack.ui.theme.BlackJackTheme
 import com.mainskown.blackjack.ui.pages.*
+import com.mainskown.blackjack.ui.theme.BlackJackTheme
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -120,14 +117,14 @@ fun NavigationHost(navController: NavHostController, modifier: Modifier = Modifi
                 sharedPreferences = sharedPreferences,
                 assetManager = assetManager,
             ))
-            GamePage(gamePageViewModel)
+            GamePage(gamePageViewModel, navController)
         }
         composable("highScoresPage") {
             val highScoresPageViewModel: HighScoresPageViewModel = viewModel(factory = HighScoresPageViewModel.createFactory(
                 highScoresDao = database.highScoresDao(),
                 gameDao = database.gameDao()
             ))
-            HighScoresPage(highScoresPageViewModel)
+            HighScoresPage(highScoresPageViewModel, navController)
         }
         composable("introPage") {
             val introPageViewModel: IntroPageViewModel = viewModel(factory = IntroPageViewModel.createFactory(
@@ -135,19 +132,19 @@ fun NavigationHost(navController: NavHostController, modifier: Modifier = Modifi
             ))
             IntroPage(introPageViewModel, navController)
         }
-        composable("rulesPage") { RulesPage() }
+        composable("rulesPage") { RulesPage(navController) }
         composable("settingsPage") {
             val settingsPageViewModel: SettingsPageViewModel = viewModel(factory = SettingsPageViewModel.createFactory(
                 sharedPreferences = sharedPreferences,
             ))
-            SettingsPage(settingsPageViewModel)
+            SettingsPage(settingsPageViewModel, navController)
         }
         composable("stylesPage") {
             val stylesPageViewModel: StylesPageViewModel = viewModel(factory = StylesPageViewModel.createFactory(
                 assetManager = assetManager,
                 sharedPreferences = sharedPreferences,
             ))
-            StylesPage(stylesPageViewModel)
+            StylesPage(stylesPageViewModel, navController)
         }
     }
 }

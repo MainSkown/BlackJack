@@ -2,6 +2,7 @@ package com.mainskown.blackjack.ui.pages
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -35,11 +36,23 @@ import com.mainskown.blackjack.models.CardSuit
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.navigation.NavController
+import com.mainskown.blackjack.models.SoundProvider
+import com.mainskown.blackjack.models.SoundType
 import com.mainskown.blackjack.models.StylesPageViewModel
 import com.mainskown.blackjack.ui.components.OutlinedText
 
 @Composable
-fun StylesPage(viewModel: StylesPageViewModel) {
+fun StylesPage(viewModel: StylesPageViewModel, navController: NavController) {
+    BackHandler {
+        // Navigate back to main page
+        navController.navigate("mainPage"){
+            popUpTo("mainPage") { inclusive = true } // Clear the back stack
+            launchSingleTop = true // Avoid multiple instances of the same page
+        }
+        SoundProvider.playSound(SoundType.BUTTON_CLICK)
+    }
+
     val uiState by viewModel.uiState.collectAsState()
     var selectedCardStyle = uiState.selectedCardStyle
     var selectedBackgroundStyle = uiState.selectedBackgroundStyle
@@ -74,6 +87,7 @@ fun StylesPage(viewModel: StylesPageViewModel) {
                 val isSelected = selectedCardStyle == style
                 OutlinedButton(
                     onClick = {
+                        SoundProvider.playSound(SoundType.BUTTON_CLICK)
                         viewModel.updateSelectedCardStyle(style)
                     },
                     modifier = Modifier
@@ -140,6 +154,7 @@ fun StylesPage(viewModel: StylesPageViewModel) {
                 val isSelected = selectedBackgroundStyle == style
                 OutlinedButton(
                     onClick = {
+                        SoundProvider.playSound(SoundType.BUTTON_CLICK)
                         viewModel.updateSelectedBackgroundStyle(style)
                     },
                     modifier = Modifier

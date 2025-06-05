@@ -13,6 +13,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -28,7 +29,10 @@ import com.mainskown.blackjack.ui.components.OutlinedText
 
 @Composable
 fun MainPage(navController: NavController) {
-    SoundProvider.startPlayingMusic()
+    LaunchedEffect(Unit) {
+        SoundProvider.startPlayingMusic()
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -38,7 +42,9 @@ fun MainPage(navController: NavController) {
             onClick = {
                 // Transition to SettingsPage
                 SoundProvider.playSound(SoundType.BUTTON_CLICK)
-                navController.navigate("settingsPage")
+                navController.navigate("settingsPage"){
+                    launchSingleTop = true // Avoid multiple instances of the same page
+                }
             },
             modifier = Modifier
                 .padding(15.dp)

@@ -1,5 +1,6 @@
 package com.mainskown.blackjack.ui.pages
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -22,6 +23,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.mainskown.blackjack.R
 import com.smarttoolfactory.slider.ColorfulIconSlider
 import com.smarttoolfactory.slider.MaterialSliderDefaults
@@ -32,7 +34,16 @@ import com.mainskown.blackjack.models.SoundType
 import com.mainskown.blackjack.ui.components.OutlinedText
 
 @Composable
-fun SettingsPage(viewModel: SettingsPageViewModel) {
+fun SettingsPage(viewModel: SettingsPageViewModel, navController: NavController) {
+    BackHandler {
+        // Navigate back to main page
+        navController.navigate("mainPage"){
+            popUpTo("mainPage") { inclusive = true } // Clear the back stack
+            launchSingleTop = true // Avoid multiple instances of the same page
+        }
+        SoundProvider.playSound(SoundType.BUTTON_CLICK)
+    }
+
     val uiState by viewModel.uiState.collectAsState()
     val soundVolume = uiState.soundVolume
     val musicVolume = uiState.musicVolume
