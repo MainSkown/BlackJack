@@ -186,6 +186,12 @@ class GameComponentViewModel(
             updateState { gameResult = GameResult.DRAW }
         }
 
+        when(_uiState.value.gameResult) {
+            GameResult.WIN -> SoundProvider.playSound(SoundType.GAME_WON)
+            GameResult.LOSE -> SoundProvider.playSound(SoundType.GAME_LOST)
+            GameResult.DRAW -> SoundProvider.playSound(SoundType.GAME_WON)
+        }
+
         updateState { showResultDialog = true }
     }
 

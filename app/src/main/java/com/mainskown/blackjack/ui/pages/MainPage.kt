@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.mainskown.blackjack.R
 import com.mainskown.blackjack.models.SoundProvider
+import com.mainskown.blackjack.models.SoundType
 import com.mainskown.blackjack.ui.components.CardButtonHand
 import com.mainskown.blackjack.ui.components.OutlinedText
 
@@ -36,6 +37,7 @@ fun MainPage(navController: NavController) {
         IconButton(
             onClick = {
                 // Transition to SettingsPage
+                SoundProvider.playSound(SoundType.BUTTON_CLICK)
                 navController.navigate("settingsPage")
             },
             modifier = Modifier
@@ -73,16 +75,19 @@ fun MainPage(navController: NavController) {
                     when (index) {
                         0 -> {
                             // Transition to GamePage
+                            SoundProvider.playSound(SoundType.BUTTON_CLICK)
                             navController.navigate("gamePage")
                         }
 
                         1 -> {
                             // Transition to HighScoresPage
+                            SoundProvider.playSound(SoundType.BUTTON_CLICK)
                             navController.navigate("highScoresPage")
                         }
 
                         2 -> {
                             // Transition to RulesPage
+                            SoundProvider.playSound(SoundType.BUTTON_CLICK)
                             navController.navigate("rulesPage")
                         }
                     }
@@ -93,6 +98,7 @@ fun MainPage(navController: NavController) {
             OutlinedButton(
                 onClick = {
                     // Transition to StylesPage
+                    SoundProvider.playSound(SoundType.BUTTON_CLICK)
                     navController.navigate("stylesPage")
                 },
                 modifier = Modifier

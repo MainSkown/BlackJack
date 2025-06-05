@@ -45,6 +45,8 @@ import com.mainskown.blackjack.models.Card
 import com.mainskown.blackjack.models.CardSuit
 import com.mainskown.blackjack.models.GameComponentViewModel
 import com.mainskown.blackjack.models.GameResult
+import com.mainskown.blackjack.models.SoundProvider
+import com.mainskown.blackjack.models.SoundType
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.joinAll
@@ -224,6 +226,7 @@ fun GameComponent(
                     // Hit button
                     Button(
                         onClick = {
+                            SoundProvider.playSound(SoundType.BUTTON_CLICK)
                             viewModel.playerHit()
                         },
                         modifier = Modifier
@@ -243,6 +246,7 @@ fun GameComponent(
                     // Hold button
                     Button(
                         onClick = {
+                            SoundProvider.playSound(SoundType.BUTTON_CLICK)
                             viewModel.playerHold()
                         },
                         modifier = Modifier
@@ -357,6 +361,7 @@ fun GameComponent(
                     ) {
                         Button(
                             onClick = {
+                                SoundProvider.playSound(SoundType.BUTTON_CLICK)
                                 viewModel.gameEnded()
                                 viewModel.onGameEnd(gameResult)
                             },

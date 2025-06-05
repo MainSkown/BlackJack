@@ -27,6 +27,8 @@ import com.smarttoolfactory.slider.ColorfulIconSlider
 import com.smarttoolfactory.slider.MaterialSliderDefaults
 import com.smarttoolfactory.slider.SliderBrushColor
 import com.mainskown.blackjack.models.SettingsPageViewModel
+import com.mainskown.blackjack.models.SoundProvider
+import com.mainskown.blackjack.models.SoundType
 import com.mainskown.blackjack.ui.components.OutlinedText
 
 @Composable
@@ -133,6 +135,7 @@ fun SettingsPage(viewModel: SettingsPageViewModel) {
             Checkbox(
                 checked = skipIntro,
                 onCheckedChange = { skip ->
+                    SoundProvider.playSound(SoundType.BUTTON_CLICK)
                     viewModel.updateSkipIntro(skip)
                 },
                 colors = CheckboxDefaults.colors(
