@@ -38,6 +38,8 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mainskown.blackjack.R
+import com.mainskown.blackjack.models.SoundProvider
+import com.mainskown.blackjack.models.SoundType
 import com.smarttoolfactory.slider.ColorfulIconSlider
 import com.smarttoolfactory.slider.MaterialSliderDefaults
 import com.smarttoolfactory.slider.SliderBrushColor
@@ -117,7 +119,7 @@ fun BiddingComponent(
         contentAlignment = Alignment.BottomCenter
     ) {
         Button(
-            onClick = { onBetSelected(betAmount) },
+            onClick = { SoundProvider.playSound(SoundType.BUTTON_CLICK); onBetSelected(betAmount) },
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color.Transparent,
                 contentColor = Color.White
@@ -125,7 +127,7 @@ fun BiddingComponent(
             border = BorderStroke(1.dp, Color.White)
         ) {
             OutlinedText(
-                text = "Place Bet",
+                text = stringResource(R.string.game_place_bet),
                 style = MaterialTheme.typography.titleMedium,
                 fontSize = 20.sp,
             )

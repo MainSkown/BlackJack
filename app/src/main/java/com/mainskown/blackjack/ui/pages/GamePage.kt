@@ -1,5 +1,6 @@
 package com.mainskown.blackjack.ui.pages
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -25,15 +26,27 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.mainskown.blackjack.ui.components.BiddingComponent
 import com.mainskown.blackjack.ui.components.GameComponent
 import com.mainskown.blackjack.R
 import com.mainskown.blackjack.models.GameComponentViewModel
 import com.mainskown.blackjack.models.GamePageViewModel
+import com.mainskown.blackjack.models.SoundProvider
+import com.mainskown.blackjack.models.SoundType
 import kotlinx.coroutines.launch
 
 @Composable
-fun GamePage(viewModel: GamePageViewModel) {
+fun GamePage(viewModel: GamePageViewModel, navController: NavController) {
+    BackHandler {
+        // Navigate back to main page
+        navController.navigate("mainPage"){
+            popUpTo("mainPage") { inclusive = true } // Clear the back stack
+            launchSingleTop = true // Avoid multiple instances of the same page
+        }
+        SoundProvider.playSound(SoundType.BUTTON_CLICK)
+    }
+
     val uiState by viewModel.uiState.collectAsState()
 
     val scope = rememberCoroutineScope()

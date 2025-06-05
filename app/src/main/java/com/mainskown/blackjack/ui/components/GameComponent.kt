@@ -45,6 +45,8 @@ import com.mainskown.blackjack.models.Card
 import com.mainskown.blackjack.models.CardSuit
 import com.mainskown.blackjack.models.GameComponentViewModel
 import com.mainskown.blackjack.models.GameResult
+import com.mainskown.blackjack.models.SoundProvider
+import com.mainskown.blackjack.models.SoundType
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.joinAll
@@ -224,6 +226,7 @@ fun GameComponent(
                     // Hit button
                     Button(
                         onClick = {
+                            SoundProvider.playSound(SoundType.BUTTON_CLICK)
                             viewModel.playerHit()
                         },
                         modifier = Modifier
@@ -243,6 +246,7 @@ fun GameComponent(
                     // Hold button
                     Button(
                         onClick = {
+                            SoundProvider.playSound(SoundType.BUTTON_CLICK)
                             viewModel.playerHold()
                         },
                         modifier = Modifier
@@ -357,6 +361,7 @@ fun GameComponent(
                     ) {
                         Button(
                             onClick = {
+                                SoundProvider.playSound(SoundType.BUTTON_CLICK)
                                 viewModel.gameEnded()
                                 viewModel.onGameEnd(gameResult)
                             },
@@ -378,40 +383,50 @@ fun GameComponent(
                 })
         }
 
+        // Key list to ignore used keys
+        val dealersKeys = remember { mutableListOf<Int>() }
         // Dealing card to dealer's hand
         if (dealersKey > 0 && !gameEnded)
             key(dealersKey) {
-                // Draw a new card only if we haven't already for this key
-                val card = viewModel.drawCard(!uiState.animationFaceDown)
+                if (!dealersKeys.contains(dealersKey)) { // Ignore already used keys
+                    // Draw a new card only if we haven't already for this key
+                    val card = viewModel.drawCard(!uiState.animationFaceDown)
 
-                dealCard(
-                    card = card,
-                    deckPosition = deckPosition.value,
-                    handPosition = dealerHandPosition.value,
-                    size = 130.dp,
-                    onAnimationEnd = {
-                        viewModel.addCardToDealerHand(card)
-                        viewModel.setAnimationComplete()
-                    }
-                )
+                    dealCard(
+                        card = card,
+                        deckPosition = deckPosition.value,
+                        handPosition = dealerHandPosition.value,
+                        size = 130.dp,
+                        onAnimationEnd = {
+                            viewModel.addCardToDealerHand(card)
+                            viewModel.setAnimationComplete()
+                            dealersKeys.add(dealersKey) // Add key to ignore list
+                        }
+                    )
+                }
             }
 
+        // Key list to ignore used keys
+        val playersKeys = remember { mutableListOf<Int>() }
         // Dealing card to player's hand
         if (playersKey > 0 && !gameEnded)
             key(playersKey) {
-                // Draw a new card only if we haven't already for this key
-                val card = viewModel.drawCard()
+                if (!playersKeys.contains(playersKey)) { // Ignore already used keys
+                    // Draw a new card only if we haven't already for this key
+                    val card = viewModel.drawCard()
 
-                dealCard(
-                    card = card,
-                    deckPosition = deckPosition.value,
-                    handPosition = playerHandPosition.value,
-                    size = 130.dp,
-                    onAnimationEnd = {
-                        viewModel.addCardToPlayerHand(card)
-                        viewModel.setAnimationComplete()
-                    }
-                )
+                    dealCard(
+                        card = card,
+                        deckPosition = deckPosition.value,
+                        handPosition = playerHandPosition.value,
+                        size = 130.dp,
+                        onAnimationEnd = {
+                            viewModel.addCardToPlayerHand(card)
+                            viewModel.setAnimationComplete()
+                            playersKeys.add(playersKey) // Add key to ignore list
+                        }
+                    )
+                }
             }
     }
 }

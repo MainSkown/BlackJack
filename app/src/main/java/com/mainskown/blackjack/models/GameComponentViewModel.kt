@@ -186,6 +186,12 @@ class GameComponentViewModel(
             updateState { gameResult = GameResult.DRAW }
         }
 
+        when(_uiState.value.gameResult) {
+            GameResult.WIN -> SoundProvider.playSound(SoundType.GAME_WON)
+            GameResult.LOSE -> SoundProvider.playSound(SoundType.GAME_LOST)
+            GameResult.DRAW -> SoundProvider.playSound(SoundType.GAME_WON)
+        }
+
         updateState { showResultDialog = true }
     }
 
@@ -211,6 +217,8 @@ class GameComponentViewModel(
     }
 
     fun drawCard(faceUp: Boolean = true): Card {
+        SoundProvider.playSound(SoundType.CARD_DRAW)
+        Log.d("GameComponentViewModel", "Drawing card")
         return deck.drawCard().apply {
             isFaceUp = faceUp
         }

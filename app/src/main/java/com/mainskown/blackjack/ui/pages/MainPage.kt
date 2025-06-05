@@ -13,6 +13,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -21,11 +22,17 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.mainskown.blackjack.R
+import com.mainskown.blackjack.models.SoundProvider
+import com.mainskown.blackjack.models.SoundType
 import com.mainskown.blackjack.ui.components.CardButtonHand
 import com.mainskown.blackjack.ui.components.OutlinedText
 
 @Composable
 fun MainPage(navController: NavController) {
+    LaunchedEffect(Unit) {
+        SoundProvider.startPlayingMusic()
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -34,7 +41,10 @@ fun MainPage(navController: NavController) {
         IconButton(
             onClick = {
                 // Transition to SettingsPage
-                navController.navigate("settingsPage")
+                SoundProvider.playSound(SoundType.BUTTON_CLICK)
+                navController.navigate("settingsPage"){
+                    launchSingleTop = true // Avoid multiple instances of the same page
+                }
             },
             modifier = Modifier
                 .padding(15.dp)
@@ -71,16 +81,19 @@ fun MainPage(navController: NavController) {
                     when (index) {
                         0 -> {
                             // Transition to GamePage
+                            SoundProvider.playSound(SoundType.BUTTON_CLICK)
                             navController.navigate("gamePage")
                         }
 
                         1 -> {
                             // Transition to HighScoresPage
+                            SoundProvider.playSound(SoundType.BUTTON_CLICK)
                             navController.navigate("highScoresPage")
                         }
 
                         2 -> {
                             // Transition to RulesPage
+                            SoundProvider.playSound(SoundType.BUTTON_CLICK)
                             navController.navigate("rulesPage")
                         }
                     }
@@ -91,6 +104,7 @@ fun MainPage(navController: NavController) {
             OutlinedButton(
                 onClick = {
                     // Transition to StylesPage
+                    SoundProvider.playSound(SoundType.BUTTON_CLICK)
                     navController.navigate("stylesPage")
                 },
                 modifier = Modifier

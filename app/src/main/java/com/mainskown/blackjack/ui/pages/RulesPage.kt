@@ -1,5 +1,6 @@
 package com.mainskown.blackjack.ui.pages
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -15,11 +16,22 @@ import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.mainskown.blackjack.R
+import com.mainskown.blackjack.models.SoundProvider
+import com.mainskown.blackjack.models.SoundType
 import com.mainskown.blackjack.ui.components.OutlinedText
 
 @Composable
-fun RulesPage() {
+fun RulesPage(navController: NavController) {
+    BackHandler {
+        // Navigate back to main page
+        navController.navigate("mainPage"){
+            popUpTo("mainPage") { inclusive = true } // Clear the back stack
+            launchSingleTop = true // Avoid multiple instances of the same page
+        }
+        SoundProvider.playSound(SoundType.BUTTON_CLICK)
+    }
     val rules: Array<String> = stringArrayResource(R.array.rules_rules);
 
     Column(
