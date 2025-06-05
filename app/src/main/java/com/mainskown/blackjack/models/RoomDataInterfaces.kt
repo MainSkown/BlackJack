@@ -14,7 +14,6 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
 import androidx.room.Update
-import com.mainskown.blackjack.components.GameResult
 
 @Entity
 data class GameData(
@@ -125,19 +124,22 @@ class DatabaseProvider private constructor(context: Context) {
         @Volatile
         private var INSTANCE: DatabaseProvider? = null
 
-        fun getInstance(context: Context): DatabaseProvider {
+        fun getInstance(context: Context?): DatabaseProvider {
             return INSTANCE ?: synchronized(this) {
+                if(context == null) {
+                    throw IllegalArgumentException("Can not initialize DatabaseProvider with null context")
+                }
                 val instance = DatabaseProvider(context)
                 INSTANCE = instance
                 instance
             }
         }
 
-        fun getDatabase(context: Context): AppDatabase {
+        fun getDatabase(context: Context?): AppDatabase {
             return getInstance(context).database
         }
 
-        suspend fun updateHighScores(context: Context){
+        suspend fun updateHighScores(context: Context?){
             val highScoresDao = getDatabase(context).highScoresDao()
             // Check if high scores exist, if not, create a new one
             var highScore = highScoresDao.getHighScores()

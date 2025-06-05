@@ -1,7 +1,4 @@
 <resources>
-    <!-- Keys -->
-    <string name="preferences_style_key">StylePreferences</string>
-    <string name="preferences_settings_key">SettingsPreferences</string>
     <!-- Main screen -->
     <string name="app_name">BlackJack</string>
     <string-array name="main_menu_options">
@@ -34,9 +31,6 @@
         <item>The game doesn\'t allow for splits or doubles - the betting only takes place at the beginning of the round, and the player is not allowed to split their hand.</item>
         <item>A bet must be worth at least 10 chips.</item>
     </string-array>
-    <string name="title_activity_settings_page">SettingsPage</string>
-    <string name="title_activity_game_page">GamePage</string>
-    <string name="title_activity_high_scores_page">HighScoresPage</string>
 
     <!-- High scores screen -->
     <string name="high_scores_best_scores">Best Scores</string>
@@ -74,7 +68,6 @@
     <string name="game_draw">It\'s a draw!</string>
     <string name="game_chips_left">%1$d chips</string>
     <string name="game_continue">Continue</string>
-    <string name="title_activity_styles_page">StylesPage</string>
 
     <!-- Styles screen -->
     <string name="styles_card_styles">Card Styles</string>
@@ -86,5 +79,4 @@
     <string name="styles_background_green">Green</string>
     <string name="styles_background_cat">Cat</string>
     <string name="styles_background_ace_cat">Ace cat</string>
-    <string name="title_activity_intro_page">IntroPage</string>
 </resources>

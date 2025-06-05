@@ -22,7 +22,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import com.mainskown.blackjack.R
 import com.mainskown.blackjack.models.BackgroundStyle
-import com.mainskown.blackjack.pages.StylesPreferences
 
 private val DarkColorScheme = darkColorScheme(
     primary = Purple80,
@@ -65,7 +64,7 @@ fun BackgroundWrapper(content: @Composable () -> Unit) {
     val context = LocalContext.current
 
     // Load the background image directly
-    val preferencesKey = context.getString(R.string.preferences_style_key)
+    val preferencesKey = context.getString(R.string.app_name)
     val sharedPrefs = context.getSharedPreferences(preferencesKey, Context.MODE_PRIVATE)
 
     // Use a remember with a unique key for each style to force recomposition when style changes

@@ -1,21 +1,20 @@
-package com.mainskown.blackjack.components
+package com.mainskown.blackjack.ui.components
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.layout.positionOnScreen
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.mainskown.blackjack.models.Card
-import com.mainskown.blackjack.models.CardSuit
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -29,8 +28,7 @@ fun displayCardHand(
     globalPositionRead: ((Offset) -> Unit)? = null
 ) {
     val density = LocalDensity.current
-    val configuration = LocalConfiguration.current
-    val screenWidthDp = configuration.screenWidthDp.dp
+    val screenWidthDp = LocalWindowInfo.current.containerSize.width.dp
     val maxHandWidth = screenWidthDp * 0.95f // 95% of screen width
     val cardWidthPx = with(density) { cardSize.toPx() * 0.7f } // 0.7: overlap factor
     val maxCardsWidth = cardWidthPx * (cards.size - 1) + with(density) { cardSize.toPx() }
@@ -47,7 +45,7 @@ fun displayCardHand(
 
     Box(
         modifier = modifier.fillMaxWidth(),
-        contentAlignment = androidx.compose.ui.Alignment.Center
+        contentAlignment = Alignment.Center
     ) {
         // If there are no cards, use fake invisible card
         DisplayCard(
