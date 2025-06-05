@@ -45,33 +45,62 @@ import kotlinx.coroutines.delay
 @Composable
 fun IntroPage(viewModel: IntroPageViewModel, navController: NavController) {
     val uiState by viewModel.uiState.collectAsState()
-    val isVideoFinished = uiState.isVideoFinished
-    // Animate overlayAlpha and titleAlpha for smooth transitions
-    val animatedOverlayAlpha by animateFloatAsState(targetValue = uiState.overlayAlpha, animationSpec = tween(1000))
-    val animatedTitleAlpha by animateFloatAsState(targetValue = uiState.titleAlpha, animationSpec = tween(1000))
 
-    // Handle the transition sequence
-    LaunchedEffect(isVideoFinished) {
-        if (isVideoFinished) {
-            // Ensure full darkness for a moment
-            delay(500)
-            // Show the title
-            viewModel.updateShowTitle(true)
-            // Wait for the title to be shown fully
-            delay(3000)
-            // Navigate to MainActivity with fade-in transition animation
-            navController.navigate("mainPage") {
-                // Clear the back stack to prevent going back to the intro page
-                popUpTo("introPage") { inclusive = true }
+    // Track readiness for navigation
+    val readyForNavigation = uiState.readyForNavigation
+
+    // Use animateFloatAsState for smooth transitions
+    val overlayAlpha by animateFloatAsState(
+        targetValue = uiState.overlayAlpha,
+        animationSpec = tween(500)
+    )
+
+    val titleAlpha by animateFloatAsState(
+        targetValue = uiState.titleAlpha,
+        animationSpec = tween(500)
+    )
+
+    // Page exit animation
+    val pageAlpha by animateFloatAsState(
+        targetValue = if (readyForNavigation) 0f else 1f,
+        animationSpec = tween(300),
+        finishedListener = {
+            if (readyForNavigation && it <= 0.01f) {
+                // Only navigate when page is fully faded out
+                navController.navigate("mainPage") {
+                    popUpTo("introPage") { inclusive = true }
+                }
             }
+        }
+    )
+
+    // Handle the transition sequence with better state control
+    LaunchedEffect(uiState.isVideoFinished) {
+        if (uiState.isVideoFinished) {
+            // Force black overlay to 100% immediately
+            viewModel.forceBlackOverlay(true)
+            // Wait to ensure black is fully rendered
+            delay(300)
+            // Show title
+            viewModel.updateShowTitle(true)
+            // Keep title visible
+            delay(3000)
+            // Hide title
+            viewModel.updateShowTitle(false)
+            // Wait for title fade out
+            delay(600)
+            // Signal readiness to transition
+            viewModel.setReadyForNavigation(true)
         }
     }
 
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-        ) {
-            // Video Player
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .alpha(pageAlpha) // Apply page exit animation
+    ) {
+        if (!uiState.isVideoFinished)
+        // Video Player
             VideoPlayer(
                 videoPath = "asset:///intro/intro.mp4",
                 onVideoComplete = {
@@ -83,37 +112,37 @@ fun IntroPage(viewModel: IntroPageViewModel, navController: NavController) {
                 }
             )
 
-            // Simple overlay for darkening effect
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .alpha(animatedOverlayAlpha)
-                    .zIndex(1f)
-                    .background(Color.Black)
-            )
+        // Black overlay - always on top with high zIndex
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .zIndex(10f) // Very high zIndex to ensure it's on top
+                .alpha(overlayAlpha)
+                .background(Color.Black)
+        )
 
-            // App Title that appears after fade to black - positioned to match MainActivity
-            Column(
+        // Title
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .zIndex(20f) // Even higher zIndex
+                .alpha(titleAlpha),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            OutlinedText(
+                text = stringResource(id = R.string.app_name),
+                style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier
-                    .fillMaxSize()
-                    .zIndex(2f)
-                    .alpha(animatedTitleAlpha),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                OutlinedText(
-                    text = stringResource(id = R.string.app_name),
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier
-                        .padding(bottom = 50.dp)
-                        .graphicsLayer {
-                            transformOrigin = TransformOrigin.Center
-                        }
-                )
-                // Empty space where cards would appear in MainActivity
-                Box(modifier = Modifier.size(150.dp))
-            }
+                    .padding(bottom = 50.dp)
+                    .graphicsLayer {
+                        transformOrigin = TransformOrigin.Center
+                    }
+            )
+            // Empty space where cards would appear in MainActivity
+            Box(modifier = Modifier.size(150.dp))
         }
+    }
 }
 
 @OptIn(UnstableApi::class)
@@ -186,4 +215,3 @@ fun VideoPlayer(
         modifier = Modifier.fillMaxSize()
     )
 }
-
