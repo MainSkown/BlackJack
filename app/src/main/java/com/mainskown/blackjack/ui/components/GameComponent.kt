@@ -230,7 +230,7 @@ fun GameComponent(
                             viewModel.playerHit()
                         },
                         modifier = Modifier
-                            .size(90.dp, 40.dp)
+                            .size(120.dp, 40.dp)
                             .border(
                                 width = 2.dp,
                                 color = Color(0xFFFFD700), // Gold
@@ -250,7 +250,7 @@ fun GameComponent(
                             viewModel.playerHold()
                         },
                         modifier = Modifier
-                            .size(90.dp, 40.dp)
+                            .size(120.dp, 40.dp)
                             .border(
                                 width = 2.dp,
                                 color = Color(0xFFFFD700), // Gold
@@ -326,21 +326,21 @@ fun GameComponent(
                         )
                         Text(
                             text = when (gameResult) {
-                                GameResult.WIN -> "+${
+                                GameResult.WIN ->
                                     stringResource(
-                                        R.string.game_chips_left,
-                                        bet
+                                        R.string.game_chips_change,
+                                        "+$bet"
                                     )
-                                }"
 
-                                GameResult.LOSE -> "-${
+
+                                GameResult.LOSE ->
                                     stringResource(
-                                        R.string.game_chips_left,
-                                        bet
+                                        R.string.game_chips_change,
+                                        "-$bet"
                                     )
-                                }"
 
-                                GameResult.DRAW -> "+${stringResource(R.string.game_chips_left, 0)}"
+
+                                GameResult.DRAW -> stringResource(R.string.game_chips_change, "+0")
                             },
                             color = when (gameResult) {
                                 GameResult.WIN -> Color(0xFF43A047)

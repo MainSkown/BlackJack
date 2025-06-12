@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="main_menu_options">
+        <item>Start</item>
+        <item>Rekordy</item>
+        <item>Zasady</item>
+    </string-array>
+    <string name="main_menu_customize">Personalizacja</string>
+
+    <!-- Settings screen -->
+    <string name="settings_title">Ustawienia</string>
+    <string name="settings_music_volume">Głośność muzyki</string>
+    <string name="settings_sound_volume">Głośność dźwięku</string>
+    <string name="settings_skip_intro">Pomiń intro</string>
+    <string name="settings_language">Język</string>
+    <!-- Rules screen -->
+    <string name="rules_title">Zasady</string>
+    <string-array name="rules_rules">
+        <item>Talia używana podczas gry składa się z 52 kart.</item>
+        <item>Karty numerowane są warte tyle punktów ile określa wartość na ich awersie.</item>
+        <item>Karty królów, królowych oraz waletów są warte 10 punktów.</item>
+        <item>Asy są warte 1 lub 11 punktów (zależnie od tego co jest bardziej korzystne dla gracza).</item>
+        <item>Celem gry jest uzyskanie wyniku najbliższego do 21 punktów poprzez dobieranie kart.</item>
+        <item>Jeżeli gracz otrzyma kartę wartą 10 punktów oraz asa ma blackjacka i automatycznie wygrywa daną rundę (to samo tyczy się krupiera).</item>
+        <item>Przekroczenie 21 punktów podczas dobierania skutkuje automatyczną przegraną - tyczy się to zarówno gracza jak i krupiera.</item>
+        <item>Runda zakańcza się wygraną krupiera lub gracza - wygrywa ten, który ma wynik bliższy 21 punktów.</item>
+        <item>Jeżeli gracz i krupier mają te samą liczbę punktów runda kończy się remisem.</item>
+        <item>Jeżeli, którykolwiek z graczy przekroczy 21 punktów drugi automatycznie wygrywa rundę.</item>
+        <item>Gra nie pozwala na splity i dublety - obstawianie odbywa się tylko i wyłącznie na początku rundy, a gracz nie może splitować swojej ręki w trakcie trwania rundy.</item>
+        <item>Zakład musi być warty przynajmniej 1/4 wszystkich żetonów posiadanych przez gracza.</item>
+    </string-array>
+
+    <!-- High scores screen -->
+    <string name="high_scores_best_scores">Najwyższe wyniki</string>
+    <string name="high_scores_best_chips">Najwięcej uzyskanych żetonów: %1$d</string>
+    <string name="high_scores_best_bet">Największy zakład: %1$d</string>
+    <string name="high_scores_best_streak">Najdłuższa passa zwycięstw: %1$d</string>
+    <string name="high_scores_statistics">Statystyki</string>
+    <string name="high_scores_wins">Wygrane gry: %1$d</string>
+    <string name="high_scores_losses">Przegrane gry: %1$d</string>
+    <string name="high_scores_draws">Remisy: %1$d</string>
+    <string name="high_scores_total_games">Zagrane gry: %1$d</string>
+
+    <!-- Game screen -->
+    <!-- Betting -->
+    <string name="game_chips">Żetony: %1$d</string>
+    <string name="game_betting">Zakład: %1$d</string>
+    <string name="game_place_bet">Postaw zakład</string>
+    <string-array name="game_bet_options">
+        <item>Postaw ¼</item>
+        <item>Postaw ½</item>
+        <item>Postaw ¾</item>
+        <item>Postaw wszystko</item>
+    </string-array>
+    <!-- Game actions -->
+    <string name="game_over">Koniec Gry!</string>
+    <string name="game_out_of_chips">Straciłeś wszystkie żetony!</string>
+    <string name="game_new_game">Nowa Gra</string>
+    <string name="game_would_you_like_to_play_again">Czy chcesz zagrać ponownie?</string>
+    <string name="game_dealer_hand">Ręka krupiera</string>
+    <string name="game_dealer_value">Wartość kart krupiera: %1$d</string>
+    <string name="game_deck">Talia</string>
+    <string name="game_value">Wartość: %1$d</string>
+    <string name="game_hit">Dobierz</string>
+    <string name="game_hold">Stój</string>
+    <string name="game_won">Wygrałeś!</string>
+    <string name="game_lost">Przegrałeś!</string>
+    <string name="game_draw">Remis!</string>
+    <string name="game_chips_change">Żetonów: %1$s</string>
+    <string name="game_continue">Kontynuuj</string>
+
+    <!-- Styles screen -->
+    <string name="styles_card_styles">Style kart</string>
+    <string name="styles_card_classic">Klasyczny</string>
+    <string name="styles_card_modern">Nowoczesny</string>
+    <string name="styles_background_styles">Style tła</string>
+    <string name="styles_background_red">Czerwony</string>
+    <string name="styles_background_blue">Niebieski</string>
+    <string name="styles_background_green">Zielony</string>
+    <string name="styles_background_cat">Kot</string>
+    <string name="styles_background_ace_cat">As mruczek</string>
+</resources>

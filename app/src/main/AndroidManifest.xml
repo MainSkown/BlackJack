@@ -9,7 +9,6 @@
         android:icon="@mipmap/ic_icon"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_icon_round"
-        android:supportsRtl="true"
         android:theme="@style/Theme.BlackJack"
         tools:targetApi="31" >
         <activity

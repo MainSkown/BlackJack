@@ -3,9 +3,11 @@ package com.mainskown.blackjack
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.os.LocaleListCompat
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -30,15 +32,19 @@ import com.mainskown.blackjack.models.IntroPageViewModel
 import com.mainskown.blackjack.models.SettingsPageViewModel
 import com.mainskown.blackjack.models.SettingsPreferences
 import com.mainskown.blackjack.models.SoundProvider
-import com.mainskown.blackjack.models.SoundType
 import com.mainskown.blackjack.models.StylesPageViewModel
 import com.mainskown.blackjack.ui.pages.*
 import com.mainskown.blackjack.ui.theme.BlackJackTheme
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        // Set app language based on saved preference
+        val sharedPrefs = getSharedPreferences(getString(R.string.app_name), Context.MODE_PRIVATE)
+        val langTag = sharedPrefs.getString("language", LocaleListCompat.getAdjustedDefault()[0]?.language ?: "en") ?: "en"
+        AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(langTag))
+
         setContent {
             BlackJackTheme {
                 val navController = rememberNavController()
