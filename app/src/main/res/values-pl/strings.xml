@@ -2,7 +2,7 @@
 <resources>
     <string-array name="main_menu_options">
         <item>Start</item>
-        <item>Tablica wyników</item>
+        <item>Rekordy</item>
         <item>Zasady</item>
     </string-array>
     <string name="main_menu_customize">Personalizacja</string>
@@ -66,7 +66,7 @@
     <string name="game_won">Wygrałeś!</string>
     <string name="game_lost">Przegrałeś!</string>
     <string name="game_draw">Remis!</string>
-    <string name="game_chips_left">Liczba żetonów: %1$d</string>
+    <string name="game_chips_left">Żetonów: %1$d</string>
     <string name="game_continue">Kontynuuj</string>
 
     <!-- Styles screen -->
