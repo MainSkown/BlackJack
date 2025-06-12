@@ -16,7 +16,7 @@
     <!-- Rules screen -->
     <string name="rules_title">Zasady</string>
     <string-array name="rules_rules">
-        <item>Talia używana podczas gry ma 52 karty.</item>
+        <item>Talia używana podczas gry składa się z 52 kart.</item>
         <item>Karty numerowane są warte tyle punktów ile określa wartość na ich awersie.</item>
         <item>Karty królów, królowych oraz waletów są warte 10 punktów.</item>
         <item>Asy są warte 1 lub 11 punktów (zależnie od tego co jest bardziej korzystne dla gracza).</item>
