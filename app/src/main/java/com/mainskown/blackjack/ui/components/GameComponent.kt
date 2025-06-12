@@ -230,7 +230,7 @@ fun GameComponent(
                             viewModel.playerHit()
                         },
                         modifier = Modifier
-                            .size(90.dp, 40.dp)
+                            .size(120.dp, 40.dp)
                             .border(
                                 width = 2.dp,
                                 color = Color(0xFFFFD700), // Gold
@@ -250,7 +250,7 @@ fun GameComponent(
                             viewModel.playerHold()
                         },
                         modifier = Modifier
-                            .size(90.dp, 40.dp)
+                            .size(120.dp, 40.dp)
                             .border(
                                 width = 2.dp,
                                 color = Color(0xFFFFD700), // Gold
