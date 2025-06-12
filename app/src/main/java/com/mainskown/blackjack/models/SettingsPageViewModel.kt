@@ -12,10 +12,14 @@ import kotlinx.coroutines.flow.asStateFlow
 data class SettingsPageUiState(
     val soundVolume: Float = 0.5f,
     val musicVolume: Float = 0.5f,
-    val skipIntro: Boolean = false
+    val skipIntro: Boolean = false,
+    val language: String = "English",
+    val languageIndex: Int = 0,
+    val languageSelectorExpanded: Boolean = false,
 )
 
 class SettingsPageViewModel(private val sharedPreferences: SharedPreferences): ViewModel(){
+    private val languageTags = listOf("en", "pl")
     private val _uiState = MutableStateFlow(SettingsPageUiState())
     val uiState: StateFlow<SettingsPageUiState> = _uiState.asStateFlow()
     val settingsPreferences: SettingsPreferences by lazy {
@@ -23,10 +27,14 @@ class SettingsPageViewModel(private val sharedPreferences: SharedPreferences): V
     }
 
     init{
+        val tag = settingsPreferences.language
+        val idx = languageTags.indexOf(tag).takeIf { it >= 0 } ?: 0
         _uiState.value = SettingsPageUiState(
             soundVolume = settingsPreferences.soundVolume,
             musicVolume = settingsPreferences.musicVolume,
-            skipIntro = settingsPreferences.skipIntro
+            skipIntro = settingsPreferences.skipIntro,
+            language = tag,
+            languageIndex = idx
         )
     }
 
@@ -43,6 +51,19 @@ class SettingsPageViewModel(private val sharedPreferences: SharedPreferences): V
     fun updateSkipIntro(value: Boolean) {
         _uiState.value = _uiState.value.copy(skipIntro = value)
         settingsPreferences.updateSkipIntro(value)
+    }
+
+    fun toggleLanguageSelector() {
+        _uiState.value = _uiState.value.copy(languageSelectorExpanded = !_uiState.value.languageSelectorExpanded)
+    }
+
+    fun updateLanguage(tag: String, index: Int) {
+        _uiState.value = _uiState.value.copy(
+            language = tag,
+            languageIndex = index,
+            languageSelectorExpanded = false
+        )
+        settingsPreferences.updateLanguage(tag)
     }
 
     companion object {

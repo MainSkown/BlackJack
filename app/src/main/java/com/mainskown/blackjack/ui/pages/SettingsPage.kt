@@ -1,9 +1,11 @@
 package com.mainskown.blackjack.ui.pages
 
 import androidx.activity.compose.BackHandler
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.Modifier
@@ -11,9 +13,16 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -21,6 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -32,12 +42,13 @@ import com.mainskown.blackjack.models.SettingsPageViewModel
 import com.mainskown.blackjack.models.SoundProvider
 import com.mainskown.blackjack.models.SoundType
 import com.mainskown.blackjack.ui.components.OutlinedText
+import androidx.core.os.LocaleListCompat
 
 @Composable
 fun SettingsPage(viewModel: SettingsPageViewModel, navController: NavController) {
     BackHandler {
         // Navigate back to main page
-        navController.navigate("mainPage"){
+        navController.navigate("mainPage") {
             popUpTo("mainPage") { inclusive = true } // Clear the back stack
             launchSingleTop = true // Avoid multiple instances of the same page
         }
@@ -48,7 +59,13 @@ fun SettingsPage(viewModel: SettingsPageViewModel, navController: NavController)
     val soundVolume = uiState.soundVolume
     val musicVolume = uiState.musicVolume
     val skipIntro = uiState.skipIntro
-    
+    val language = uiState.language
+    val languageIndex = uiState.languageIndex
+    val expanded = uiState.languageSelectorExpanded
+    val languageTags = stringArrayResource(R.array.language_tags)
+    val languageNames = stringArrayResource(R.array.language_names)
+    val displayLanguageName = languageNames.getOrNull(languageIndex) ?: language
+
     Column(
         modifier = Modifier
             .fillMaxSize(),
@@ -159,7 +176,55 @@ fun SettingsPage(viewModel: SettingsPageViewModel, navController: NavController)
             )
         }
 
-        // Language selector
-        // TODO: Implement language selector
+        // Language selection
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            OutlinedText(
+                text = stringResource(R.string.settings_language),
+            )
+            // Language selection dropdown
+            Box(
+                modifier = Modifier
+                    .wrapContentSize(Alignment.TopStart)
+                    .padding(start = 10.dp)
+            ) {
+                OutlinedButton(
+                    modifier = Modifier
+                        .fillMaxWidth(0.5f)
+                        .padding(8.dp),
+                    onClick = { viewModel.toggleLanguageSelector() },
+                    shape = RoundedCornerShape(8.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = Color.White
+                    ),
+                    border = BorderStroke(
+                        width = 1.dp,
+                        color = Color.White.copy(alpha = 0.5f)
+                    )
+                ) {
+                    OutlinedText(displayLanguageName)
+                }
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { viewModel.toggleLanguageSelector() }
+                ) {
+                    languageTags.forEachIndexed { index, tag ->
+                        DropdownMenuItem(
+                            text = { Text(languageNames.getOrNull(index) ?: tag) },
+                            onClick = {
+                                SoundProvider.playSound(SoundType.BUTTON_CLICK)
+                                viewModel.updateLanguage(tag, index)
+                                AppCompatDelegate.setApplicationLocales(
+                                    LocaleListCompat.forLanguageTags(tag)
+                                )
+                            }
+                        )
+                    }
+                }
+            }
+        }
     }
 }
