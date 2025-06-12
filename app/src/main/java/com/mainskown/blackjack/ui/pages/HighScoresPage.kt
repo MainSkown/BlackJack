@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.mainskown.blackjack.R
@@ -53,6 +54,7 @@ fun HighScoresPage(viewModel: HighScoresPageViewModel, navController: NavControl
             text = stringResource(R.string.high_scores_best_scores),
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center,
             modifier = Modifier.padding(top = 20.dp, bottom = 20.dp)
         )
         OutlinedText(
