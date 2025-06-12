@@ -5,6 +5,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -51,11 +52,13 @@ fun CardButton (
         )
         Text(
             text = text,
-            fontSize = 32.sp,
             color = textColor,
             textAlign = TextAlign.Center,
             fontWeight = FontWeight.Bold,
-            lineHeight = 34.sp
+            style = MaterialTheme.typography.titleSmall,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
         )
         // Right down corner symbol
         Text(
