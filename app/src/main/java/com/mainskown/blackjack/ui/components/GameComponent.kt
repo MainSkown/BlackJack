@@ -326,21 +326,21 @@ fun GameComponent(
                         )
                         Text(
                             text = when (gameResult) {
-                                GameResult.WIN -> "+${
+                                GameResult.WIN ->
                                     stringResource(
-                                        R.string.game_chips_left,
-                                        bet
+                                        R.string.game_chips_change,
+                                        "+$bet"
                                     )
-                                }"
 
-                                GameResult.LOSE -> "-${
+
+                                GameResult.LOSE ->
                                     stringResource(
-                                        R.string.game_chips_left,
-                                        bet
+                                        R.string.game_chips_change,
+                                        "-$bet"
                                     )
-                                }"
 
-                                GameResult.DRAW -> "+${stringResource(R.string.game_chips_left, 0)}"
+
+                                GameResult.DRAW -> stringResource(R.string.game_chips_change, "+0")
                             },
                             color = when (gameResult) {
                                 GameResult.WIN -> Color(0xFF43A047)

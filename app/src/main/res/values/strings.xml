@@ -67,7 +67,7 @@
     <string name="game_won">You won!</string>
     <string name="game_lost">You lost!</string>
     <string name="game_draw">It\'s a draw!</string>
-    <string name="game_chips_left">%1$d chips</string>
+    <string name="game_chips_change">%1$s chips</string>
     <string name="game_continue">Continue</string>
 
     <!-- Styles screen -->
