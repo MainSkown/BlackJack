@@ -17,24 +17,24 @@
     <string name="rules_title">Rules</string>
     <string-array name="rules_rules">
         <item>The deck used to play consists of 52 cards</item>
-        <item>Numbered cards count for as many points as their face value shows</item>
+        <item>Numbered cards count for as many points as indicated by their face value</item>
         <item>Kings, Jacks, Queens count for 10 points each</item>
-        <item>Aces count for 1 or 11 points (depends on what benefits player more)</item>
+        <item>Aces count for 1 or 11 points (depends on what benefits the player more)</item>
         <item>The goal is to get as close to 21 points by drawing or holding cards</item>
-        <item>If the player is dealt a card worth 10 points and an Ace they automatically end the round with a blackjack (same applies to the dealer).</item>
-        <item>Exceeding 21 points while drawing cards results in instant loss - the rule applies to both the dealer and the player.</item>
+        <item>If the player is dealt a card worth 10 points and an Ace they automatically end the round with a blackjack (the same applies to the dealer).</item>
+        <item>Exceeding 21 points while drawing cards results in an instant loss - the rule applies to both the dealer and the player.</item>
         <item>The round concludes with either the player or the dealer winning - the one that is closer to 21 points wins the hand.</item>
-        <item>If the dealer and the player both have the same number of points or they both exceeded 21 points - the round results in a tie.</item>
+        <item>If the dealer and the player both have the same number of points - the round results in a tie.</item>
         <item>If one of the participants exceeds 21 points the other one automatically wins the round.</item>
         <item>The game doesn\'t allow for splits or doubles - the betting only takes place at the beginning of the round, and the player is not allowed to split their hand.</item>
-        <item>A bet must be worth at least 10 chips.</item>
+        <item>Bets need to be at least 1/4th of the player\'s total chips.</item>
     </string-array>
 
     <!-- High scores screen -->
     <string name="high_scores_best_scores">Best Scores</string>
     <string name="high_scores_best_chips">Most chips acquired: %1$d</string>
     <string name="high_scores_best_bet">Biggest bet: %1$d</string>
-    <string name="high_scores_best_streak">Best Streak: %1$d</string>
+    <string name="high_scores_best_streak">Highest winning streak: %1$d</string>
     <string name="high_scores_statistics">Statistics</string>
     <string name="high_scores_wins">Games won: %1$d</string>
     <string name="high_scores_losses">Games lost: %1$d</string>
