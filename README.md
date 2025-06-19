@@ -72,4 +72,5 @@ This project uses the following third-party assets:
 - **Classic Game Action Negative 19** by floraphonic – https://pixabay.com/sound-effects/classic-game-action-negative-19-224578/
 - **Card Flip** by f4ngy – https://freesound.org/people/f4ngy/sounds/240776/
 - **collect.wav** – by Wagna - https://freesound.org/people/Wagna/sounds/325805/
+- **Click.wav** - by kwahmah_02 - https://freesound.org/people/kwahmah_02/sounds/256116/
 - **Background themes** – AI-generated exclusively for this project (no license required)   
